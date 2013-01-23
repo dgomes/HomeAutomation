@@ -4,6 +4,8 @@ import yaml
 import sys
 import urllib2
 from os import path
+from datetime import datetime
+import calendar
 
 from serial.serialutil import SerialException
 
@@ -24,9 +26,10 @@ log.startLogging(sys.stdout)
 #log.startLogging(open(conf['logfile'], 'w'))
 
 class USBClient(LineOnlyReceiver):
-
 	def __init__(self, callback):
-		self.usb_list = []
+		self.lastread = calendar.timegm(datetime.utcnow().utctimetuple())
+		self.lastline = ""
+		self.same = 0
 		self.callback = callback
 
 	def connectionFailed(self):
@@ -35,7 +38,16 @@ class USBClient(LineOnlyReceiver):
 
 	def lineReceived(self, line):
 		print "RCV: ", repr(line)
-		self.callback(line)
+		if repr(line) == self.lastline:	
+			self.same+=1
+		else:
+			self.same = 0
+		
+		if self.same > 2 and calendar.timegm(datetime.utcnow().utctimetuple()) - self.lastread > 20:	
+			self.callback(line)
+
+		self.lastread = calendar.timegm(datetime.utcnow().utctimetuple())
+		self.lastline = repr(line)
 
 	def sendLine(self, cmd):
 		print "SEND: ", cmd
@@ -96,10 +108,15 @@ def updateCOSM(line):
 	datastream = json.dumps({"version": "1.0.0", "datastreams": [ { "id": "humidity", "current_value": d[u'Humidity'] }, {"id": "temperature", "current_value": d[u'Temperature'] }]})
 	headers = {"Content-type": "text/json", "X-ApiKey": conf['cosm']['ApiKey']}
 
-	conn = httplib.HTTPConnection("api.cosm.com")
-	conn.request("PUT", "/v2/feeds/"+str(conf['cosm']['feed']), datastream, headers)
-	print conn.getresponse().status
-	print "COSM update"
+	try:
+		conn = httplib.HTTPConnection("api.cosm.com")
+		conn.request("PUT", "/v2/feeds/"+str(conf['cosm']['feed']), datastream, headers)
+		if conn.getresponse().status == 200:
+			print "COSM update SUCCESSFULY"
+		else:
+			print "COSM updaye FAILED!"
+	except:
+		log.err()
 
 if __name__ == "__main__":
 	root = InfoResource()
