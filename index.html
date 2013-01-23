@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<title>Home Automation</title>
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
+	<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
+
+    <!-- User-generated js -->
+    <script>
+	var remote = function(cmd) {
+		$.getJSON("http://storage.local:8888/"+cmd,
+			function(data) {
+				alert(cmd);
+    		});
+	}
+
+
+      try {
+
+    	$(function() {
+			$('#sony_source').click(function() {
+				remote("IR/AV");
+			});
+	    });
+
+	  } catch (error) {
+    	console.error("Your javascript has an error: " + error);
+  	  }
+    </script>
+
+</head>
+
+
+<body>
+
+<!-- Home -->
+<div data-role="page" id="page1">
+    <div data-theme="a" data-role="header">
+        <h3 id="title">
+            Home Automation
+        </h3>
+    </div>
+    <div data-role="content">
+		Temperature
+		<h1>30º</h1>
+		Humidity
+		<h1>50%</h1>
+
+		<div style="width: 288px; height: 100px; position: relative; background-color: #fbfbfb; border: 1px solid #b8b8b8;">
+            <img src="http://codiqa.com/static/images/v2/image.png" alt="image" style="position: absolute; top: 50%; left: 50%; margin-left: -16px; margin-top: -18px">
+        </div>
+    </div>
+	<div data-rote="footer" data-position="fixed">
+        <div id="Remote" data-role="navbar" data-iconpos="top">
+            <ul>
+                <li> <a href="#sony" data-transition="fade" data-theme="" data-icon="grid"> SONY </a> </li>
+                <li> <a href="#chacon" data-transition="fade" data-theme="" data-icon="home"> Chacon </a> </li>
+            </ul>
+        </div>
+	</div>
+</div>
+
+
+<!-- Chacon RF Remote -->
+<div data-role="page" id="chacon" data-add-back-btn="true">
+    <div data-theme="a" data-role="header">
+        <h3>Chacon</h3>
+    </div>
+    <div data-role="content">
+        <div data-role="fieldcontain" style="margin-left:auto; margin-right:auto; width: 210px">
+            <fieldset data-role="controlgroup" data-type="horizontal">
+                <input id="radio1" name="type" value="A" type="radio" checked>
+                <label for="radio1">
+                    A
+                </label>
+                <input id="radio2" name="type" value="B" type="radio">
+                <label for="radio2">
+                    B
+                </label>
+                <input id="radio3" name="type" value="C" type="radio">
+                <label for="radio3">
+                    C
+                </label>
+            </fieldset>
+        </div>
+        <div class="ui-grid-a">
+            <div class="ui-block-a">
+				<h2 style="text-align:right; padding-right:100px">1</h2>
+            </div>
+            <div class="ui-block-b">
+                <div data-role="fieldcontain">
+                    <fieldset data-role="controlgroup">
+                        <select name="toggleswitch4" id="toggleswitch4" data-theme="" data-role="slider">
+                            <option value="off">
+                                Off
+                            </option>
+                            <option value="on">
+                                On
+                            </option>
+                        </select>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="ui-block-a">
+				<h2 style="text-align:right; padding-right:100px">2</h2>
+            </div>
+            <div class="ui-block-b">
+                <div data-role="fieldcontain">
+                    <fieldset data-role="controlgroup">
+                        <select name="toggleswitch5" id="toggleswitch5" data-theme="" data-role="slider">
+                            <option value="off">
+                                Off
+                            </option>
+                            <option value="on">
+                                On
+                            </option>
+                        </select>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="ui-block-a">
+				<h2 style="text-align:right; padding-right:100px">3</h2>
+            </div>
+            <div class="ui-block-b">
+                <div data-role="fieldcontain">
+                    <fieldset data-role="controlgroup">
+                        <select name="toggleswitch7" id="toggleswitch7" data-theme="" data-role="slider">
+                            <option value="off">
+                                Off
+                            </option>
+                            <option value="on">
+                                On
+                            </option>
+                        </select>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="ui-block-a">
+				<h2 style="text-align:right; padding-right:100px">4</h2>
+            </div>
+            <div class="ui-block-b">
+                <div data-role="fieldcontain">
+                    <fieldset data-role="controlgroup">
+                        <select name="toggleswitch6" id="toggleswitch6" data-theme="" data-role="slider">
+                            <option value="off">
+                                Off
+                            </option>
+                            <option value="on">
+                                On
+                            </option>
+                        </select>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SONY -->
+<div data-role="page" id="sony" data-add-back-btn="true">
+    <div data-theme="a" data-role="header">
+        <h3>
+            SONY
+        </h3>
+    </div>
+    <div data-role="content">
+        <div class="ui-grid-b">
+            <div class="ui-block-a">
+            </div>
+            <div class="ui-block-b">
+            </div>
+            <div class="ui-block-c">
+            </div>
+            <div class="ui-block-a">
+            </div>
+            <div class="ui-block-b">
+            </div>
+            <div class="ui-block-c">
+            </div>
+            <div class="ui-block-a">
+            </div>
+            <div class="ui-block-b">
+            </div>
+            <div class="ui-block-c">
+            </div>
+            <div class="ui-block-a">
+                <a id="sony_source" data-role="button" data-inline="true" href="#av" data-icon="arrow-l" data-iconpos="left"> Source </a>
+            </div>
+            <div class="ui-block-b">
+            </div>
+            <div class="ui-block-c">
+                <a id="sony_volup" data-role="button" data-inline="true" href="#volup" data-icon="plus" data-iconpos="left"> Vol </a>
+            </div>
+            <div class="ui-block-a">
+            </div>
+            <div class="ui-block-b">
+            </div>
+            <div class="ui-block-c">
+            </div>
+            <div class="ui-block-a">
+            </div>
+            <div class="ui-block-b">
+            </div>
+            <div class="ui-block-c">
+                <a id="sony_voldown" data-role="button" data-inline="true" href="#voldown" data-icon="minus" data-iconpos="left"> Vol </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
