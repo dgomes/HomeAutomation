@@ -64,8 +64,8 @@ class IRCommandResource(resource.Resource):
 			serial.writeSomeData(cmd)
 		except:
 			log.err()
-			return "<html>IR Failed</html>"
-		return "<html>IR Command!</html>"
+			return "{ 'result': 200 }"
+		return "{ 'result': 400 }"
 
 class RFCommandResource(resource.Resource):
 	isLeaf = True
@@ -76,8 +76,8 @@ class RFCommandResource(resource.Resource):
 			serial.writeSomeData(cmd)
 		except:
 			log.err()
-			return "<html>RF Failed</html>"
-		return "<html>RF Sent!</html>"
+			return "{ 'result': 200 }"
+		return "{ 'result': 400 }"
 
 class WeatherCommandResource(resource.Resource):
 	isLeaf = True
