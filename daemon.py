@@ -12,7 +12,7 @@ from serial.serialutil import SerialException
 from twisted.internet import reactor
 from twisted.protocols.basic import LineOnlyReceiver
 from twisted.internet.serialport import SerialPort
-from twisted.web import server, resource
+from twisted.web import server, resource, static
 from twisted.python import log
 
 import json
@@ -76,8 +76,8 @@ class IRCommandResource(resource.Resource):
 			serial.writeSomeData(cmd)
 		except:
 			log.err()
-			return "{ 'result': 400 }"
-		return "{ 'result': 200 }"
+			return jsonpCallback(request, "{ 'result': 400 }")
+		return jsonpCallback(request, "{ 'result': 200 }")
 
 class RFCommandResource(resource.Resource):
 	isLeaf = True
@@ -88,14 +88,22 @@ class RFCommandResource(resource.Resource):
 			serial.writeSomeData(cmd)
 		except:
 			log.err()
-			return "{ 'result': 400 }"
-		return "{ 'result': 200 }"
+			return jsonpCallback(request, "{ 'result': 400 }")
+		return jsonpCallback(request, "{ 'result': 200 }")
 
 class WeatherCommandResource(resource.Resource):
 	isLeaf = True
 	def render_GET(self, request):
 		return "<html>Weather Station</html>"
 
+def jsonpCallback(request, data):
+	callback = request.args.get('callback')
+
+	if callback: 
+		callback = callback[0] 
+		data = '%s(%s);' % (callback, data) 
+		return data
+	return "callback({'error': 'no callback defined'})"
 
 def updateCOSM(line):
 	try:
@@ -119,7 +127,8 @@ def updateCOSM(line):
 		log.err()
 
 if __name__ == "__main__":
-	root = InfoResource()
+#	root = InfoResource()
+	root = static.File('.')
 	root.putChild("IR", IRCommandResource())
 	root.putChild("RF", RFCommandResource())
 	root.putChild("Weather", WeatherCommandResource())
