@@ -14,9 +14,9 @@
     <!-- User-generated js -->
     <script>
 	var remote = function(cmd) {
-		$.getJSON("http://storage.local:8888/"+cmd,
+		$.getJSON("http://storage.local:8888/"+cmd+"/?callback=?",
 			function(data) {
-				alert(cmd);
+				console.log(data);
     		});
 	}
 
@@ -24,9 +24,9 @@
       try {
 
     	$(function() {
-			$('#sony_source').click(function() {
-				remote("IR/AV");
-			});
+			$('#sony_source').click(function() { remote("IR/AV"); });
+			$('#sony_volup').click(function() { remote("IR/volup"); });
+			$('#sony_voldown').click(function() { remote("IR/voldown"); });
 	    });
 
 	  } catch (error) {
