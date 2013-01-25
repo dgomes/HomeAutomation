@@ -13,27 +13,67 @@
 
     <!-- User-generated js -->
     <script>
+	server_addr = "http://storage.local.:8888/";
 	var remote = function(cmd) {
-		$.getJSON("http://storage.local:8888/"+cmd+"/?callback=?",
+		try {
+		$.getJSON(server_addr+cmd+"/?callback=?",
 			function(data) {
 				console.log(data);
-    		});
+    		})
+		.error(function(data) { alert("Could not connect to HomeAutomation Server"); });
+		} catch (error) {
+			alert(error);
+		}
 	}
 
+	function worker() {
+		$.getJSON(server_addr+"Weather/?callback=?",
+			function(data) {
+				console.log(data);
+				$('#indoor_temp').html(data.indoor_temp);
+				$('#outdoor_temp').html(data.outdoor_temp);
+				$('#humidity').html(data.humidity);
+				$('#graph').attr('src','https://api.cosm.com/v2/feeds/97393/datastreams/outdoor_temp.png?width=288&height=100&colour=%23f15a24&duration=1day&stroke_size=1&show_axis_labels=true&scale=datastream&min=0&max=35&timezone=UTC').css('top','0%').css('left','0%').css('margin','0 0 0 0');
+			})
+		.complete(function() {
+				// Schedule the next request when the current one's complete
+				setTimeout(worker, 30*1000);
+			});
+	}
 
-      try {
+    $(function() {
+		$('#sony_source').click(function() { remote("IR/AV"); });
+		$('#sony_volup').click(function() { remote("IR/volup"); });
+		$('#sony_voldown').click(function() { remote("IR/voldown"); });
+		worker();
+	});
 
-    	$(function() {
-			$('#sony_source').click(function() { remote("IR/AV"); });
-			$('#sony_volup').click(function() { remote("IR/volup"); });
-			$('#sony_voldown').click(function() { remote("IR/voldown"); });
-	    });
 
-	  } catch (error) {
-    	console.error("Your javascript has an error: " + error);
-  	  }
     </script>
 
+	<style>
+		.temperature {
+			-moz-border-radius: 15px;
+			border-radius: 15px;
+			background-color: #f15a24;
+			color: white;
+			width: 100px;
+			height: 60px;
+			padding: 10px 20px 10px 20px;
+			margin: 20px;
+			font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+			font-size: 40px;
+			font-style: normal;
+			font-weight: bold;
+			float: left;
+			text-align: center;
+		}
+		.label {
+			font-size: 10px;
+			font-style: normal;
+			font-weight: normal;
+		}
+	</style>
 </head>
 
 
@@ -47,13 +87,15 @@
         </h3>
     </div>
     <div data-role="content">
-		Temperature
-		<h1>30º</h1>
-		Humidity
-		<h1>50%</h1>
+		<h1> Temperature </h1>
+			<div class="temperature"><span id="outdoor_temp"></span>º<div class="label">outdoor</div></div>
+			<div class="temperature"><span id="indoor_temp"></span>º<div class="label">indoor</div></div>
+		<h1 style="clear: both"> Humidity </h1>
+			<div class="temperature"><span id="humidity"></span><div class="label">%</div></div>
 
+		<h1 style="clear: both"> Today's Temperature </h1>
 		<div style="width: 288px; height: 100px; position: relative; background-color: #fbfbfb; border: 1px solid #b8b8b8;">
-            <img src="http://codiqa.com/static/images/v2/image.png" alt="image" style="position: absolute; top: 50%; left: 50%; margin-left: -16px; margin-top: -18px">
+            <img src="http://codiqa.com/static/images/v2/image.png" alt="image" style="position: absolute; top: 50%; left: 50%; margin-left: -16px; margin-top: -18px" id="graph">
         </div>
     </div>
 	<div data-rote="footer" data-position="fixed">
