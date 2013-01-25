@@ -25,11 +25,17 @@ conf = yaml.load(file('settings.yaml', 'r'))
 log.startLogging(sys.stdout)
 #log.startLogging(open(conf['logfile'], 'w'))
 
+def jsonpCallback(request, data):
+	callback = request.args.get('callback')
+
+	if callback: 
+		callback = callback[0] 
+		data = '%s(%s);' % (callback, data) 
+		return data
+	return "callback({'error': 'no callback defined'})"
+
 class USBClient(LineOnlyReceiver):
 	def __init__(self, callback):
-		self.lastread = calendar.timegm(datetime.utcnow().utctimetuple())
-		self.lastline = ""
-		self.same = 0
 		self.callback = callback
 
 	def connectionFailed(self):
@@ -38,16 +44,8 @@ class USBClient(LineOnlyReceiver):
 
 	def lineReceived(self, line):
 		print "RCV: ", repr(line)
-		if repr(line) == self.lastline:	
-			self.same+=1
-		else:
-			self.same = 0
-		
-		if self.same > 2 and calendar.timegm(datetime.utcnow().utctimetuple()) - self.lastread > 20:	
-			self.callback(line)
+		self.callback(line)
 
-		self.lastread = calendar.timegm(datetime.utcnow().utctimetuple())
-		self.lastline = repr(line)
 
 	def sendLine(self, cmd):
 		print "SEND: ", cmd
@@ -56,15 +54,6 @@ class USBClient(LineOnlyReceiver):
 	def outReceived(self, data):
 		print "outReceived! with %d bytes!" % len(data)
 		self.data = self.data + data
-
-class InfoResource(resource.Resource):
-	def getChild(self, name, request):
-		print "Name: ", name
-		print "Request: ", request
-		return self
-
-	def render_GET(self, request):
-		return "<html>Info</html>"
 
 class IRCommandResource(resource.Resource):
 	isLeaf = True
@@ -93,48 +82,64 @@ class RFCommandResource(resource.Resource):
 
 class WeatherCommandResource(resource.Resource):
 	isLeaf = True
+	def __init__(self):
+		self.data = {'timestamp':0, 'humidity':0, 'indoor_temp':0, 'outdoor_temp':0} 
 	def render_GET(self, request):
-		return "<html>Weather Station</html>"
+		data = json.dumps({"humidity": self.data['humidity'], "indoor_temp": self.data['indoor_temp'], "outdoor_temp": self.data['outdoor_temp'] })
+		return jsonpCallback(request, data)
 
-def jsonpCallback(request, data):
-	callback = request.args.get('callback')
+	def updateData(self, line):
+		try:
+			d = json.loads(line)
+			if d[u'code'] != 100:  #we only care for weather station reports (code 100)
+				return
+		except:
+			return
 
-	if callback: 
-		callback = callback[0] 
-		data = '%s(%s);' % (callback, data) 
-		return data
-	return "callback({'error': 'no callback defined'})"
-
-def updateCOSM(line):
-	try:
-		d = json.loads(line)
-	except:
-		return
-
-	if d[u'code'] != 100:  #we only care for weather station reports (code 100)
-		return
-	datastream = json.dumps({"version": "1.0.0", "datastreams": [ { "id": "humidity", "current_value": d[u'Humidity'] }, {"id": "temperature", "current_value": d[u'Temperature'] }]})
-	headers = {"Content-type": "text/json", "X-ApiKey": conf['cosm']['ApiKey']}
-
-	try:
-		conn = httplib.HTTPConnection("api.cosm.com")
-		conn.request("PUT", "/v2/feeds/"+str(conf['cosm']['feed']), datastream, headers)
-		if conn.getresponse().status == 200:
-			print "COSM update SUCCESSFULY"
+		# make sure we are in the same sample acquisition window, else we start from 0	
+		if calendar.timegm(datetime.utcnow().utctimetuple()) - self.data['timestamp'] < 5:
+			if self.data['humidity'] == d[u'Humidity'] and self.data['indoor_temp'] ==  d[u'IndoorTemperature'] and self.data['outdoor_temp'] == d[u'OutdoorTemperature']:
+				self.samples+=1 	
+			else:
+				self.samples-=1
 		else:
-			print "COSM updaye FAILED!"
-	except:
-		log.err()
+			self.samples = 0
+		
+		# we don't have enough samples so we take a new measure
+		if self.samples < 1:	
+			self.data['humidity'] = d[u'Humidity']
+			self.data['indoor_temp'] =  d[u'IndoorTemperature']
+			self.data['outdoor_temp'] = d[u'OutdoorTemperature']
+			self.samples+=1
+		self.data['timestamp'] = calendar.timegm(datetime.utcnow().utctimetuple())
+
+		# 3 consistent samples? lets publish this stuff!
+		if self.samples == 3:
+			self.updateCOSM()
+
+	def updateCOSM(self):
+		datastream = json.dumps({"version": "1.0.0", "datastreams": [ { "id": "humidity", "current_value": self.data['humidity'] }, {"id": "indoor_temp", "current_value": self.data['indoor_temp']}, {"id": "outdoor_temp", "current_value": self.data['outdoor_temp'] }]})
+		headers = {"Content-type": "text/json", "X-ApiKey": conf['cosm']['ApiKey']}
+
+		try:
+			conn = httplib.HTTPConnection("api.cosm.com")
+			conn.request("PUT", "/v2/feeds/"+str(conf['cosm']['feed']), datastream, headers)
+			if conn.getresponse().status == 200:
+				print "COSM update SUCCESSFULY"
+			else:
+				print "COSM updaye FAILED!"
+		except:
+			log.err()
 
 if __name__ == "__main__":
-#	root = InfoResource()
 	root = static.File('.')
 	root.putChild("IR", IRCommandResource())
 	root.putChild("RF", RFCommandResource())
-	root.putChild("Weather", WeatherCommandResource())
+	weather = WeatherCommandResource()
+	root.putChild("Weather", weather)
 	reactor.listenTCP(conf['port'], server.Site(root))
 	try:
-		serial = SerialPort(USBClient(updateCOSM), conf['serial']['port'], reactor, baudrate=conf['serial']['baudrate'])
+		serial = SerialPort(USBClient(weather.updateData), conf['serial']['port'], reactor, baudrate=conf['serial']['baudrate'])
 	except SerialException as e:
 		log.err()
 	reactor.run()

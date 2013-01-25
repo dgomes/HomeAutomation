@@ -13,6 +13,7 @@ IRsend irsend;
 #define IRLED_PIN 3
 #define RF_RECEIVER_PIN 2  
 #define RF_TRANSMITTER_PIN 9
+#define LM35sensorPin 0  //A0
 #define RF_PERIOD 480 //usecs (as detected for Chacon Ref:54656 using a 434mhz receiver and fuzzillogic example code)
 
 #define SONY 'S'
@@ -29,6 +30,14 @@ void setup()
   Serial.begin(115200);
 }
 
+float lm35temperature() {
+  //getting the voltage reading from the temperature sensor
+  int reading = analogRead(LM35sensorPin);  
+
+  //http://playground.arduino.cc/Main/LM35HigherResolution 
+  return reading*0.45;
+}
+
 void handlePacket(unsigned long packet) {
   byte humidity;
   humidity = packet & 0xFF;
@@ -43,8 +52,10 @@ void handlePacket(unsigned long packet) {
 
   #ifdef DEBUG
   Serial.print(String("{\"code\": 101, \"Humidity\": ")+humidity); 
-  Serial.print(String(",\"Temperature\": ")); 
+  Serial.print(String(", \"OutdoorTemperature\": ")); 
   Serial.print(float(temperature));
+  Serial.print(String(", \"IndoorTemperature\": "));
+  Serial.print(lm35temperature());
   Serial.println(String("}"));
   #endif
 
@@ -64,10 +75,13 @@ void handlePacket(unsigned long packet) {
     return;
   }
   Serial.print(String("{\"code\": 100, \"Humidity\": ")+humidity); 
-  Serial.print(String(",\"Temperature\": "));
+  Serial.print(String(", \"OutdoorTemperature\": "));
   Serial.print(temperature);
+  Serial.print(String(", \"IndoorTemperature\": "));
+  Serial.print(lm35temperature());
   Serial.println(String("}"));
 }
+
 
 int rfdecode()
 {
