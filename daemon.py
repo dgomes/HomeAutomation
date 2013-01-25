@@ -116,6 +116,7 @@ class WeatherCommandResource(resource.Resource):
 		# 3 consistent samples? lets publish this stuff!
 		if self.samples == 3:
 			self.updateCOSM()
+			self.samples = 0
 
 	def updateCOSM(self):
 		datastream = json.dumps({"version": "1.0.0", "datastreams": [ { "id": "humidity", "current_value": self.data['humidity'] }, {"id": "indoor_temp", "current_value": self.data['indoor_temp']}, {"id": "outdoor_temp", "current_value": self.data['outdoor_temp'] }]})
