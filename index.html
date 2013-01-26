@@ -6,14 +6,15 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
-	<title>Home Automation</title>
+	<title>HomeAutomation</title>
+	<link rel="apple-touch-icon-precomposed" href=" http://pixabay.com/static/uploads/photo/2012/05/07/17/46/red-48810_640.png "/>
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
 	<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
 
     <!-- User-generated js -->
     <script>
-	server_addr = "http://storage.local.:8888/";
+	server_addr = "http://192.168.1.10:8888/";
 	var remote = function(cmd) {
 		try {
 		$.getJSON(server_addr+cmd+"/?callback=?",
@@ -33,18 +34,34 @@
 				$('#indoor_temp').html(data.indoor_temp);
 				$('#outdoor_temp').html(data.outdoor_temp);
 				$('#humidity').html(data.humidity);
-				$('#graph').attr('src','https://api.cosm.com/v2/feeds/97393/datastreams/outdoor_temp.png?width=288&height=100&colour=%23f15a24&duration=1day&stroke_size=1&show_axis_labels=true&scale=datastream&min=0&max=35&timezone=UTC').css('top','0%').css('left','0%').css('margin','0 0 0 0');
+				$('#graph_outdoor').attr('src','https://api.cosm.com/v2/feeds/97393/datastreams/outdoor_temp.png?width=288&height=100&colour=%23f15a24&duration=1day&stroke_size=1&show_axis_labels=true&scale=datastream&min=0&max=35&timezone=UTC').animate({top:0, left:0, margin:0}, 500);
 			})
 		.complete(function() {
 				// Schedule the next request when the current one's complete
 				setTimeout(worker, 30*1000);
 			});
 	}
+	
+	function toggle() {
+		$("select option:selected").each(function () {
+	            str += $(this).text() + " ";
+		  });
+	}
 
-    $(function() {
+
+	$(function() {
 		$('#sony_source').click(function() { remote("IR/AV"); });
 		$('#sony_volup').click(function() { remote("IR/volup"); });
 		$('#sony_voldown').click(function() { remote("IR/voldown"); });
+
+		$('select').each(function() {
+			$(this).change(function() {
+				var cmd = "RF/"+$("input:checked").val();
+				cmd += $.trim($("option:selected", this).parentsUntil(".ui-block-b").parent().prev().text());
+				cmd += "/"+$("option:selected", this).val();
+				remote(cmd);
+			});
+		});
 		worker();
 	});
 
@@ -57,12 +74,12 @@
 			border-radius: 15px;
 			background-color: #f15a24;
 			color: white;
-			width: 100px;
-			height: 60px;
-			padding: 10px 20px 10px 20px;
-			margin: 20px;
+			width: 70px;
+			height: 50px;
+			padding: 8px 20px 8px 20px;
+			margin: 16px;
 			font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-			font-size: 40px;
+			font-size: 25px;
 			font-style: normal;
 			font-weight: bold;
 			float: left;
@@ -90,13 +107,11 @@
 		<h1> Temperature </h1>
 			<div class="temperature"><span id="outdoor_temp"></span>º<div class="label">outdoor</div></div>
 			<div class="temperature"><span id="indoor_temp"></span>º<div class="label">indoor</div></div>
+			<div style="width: 288px; height: 100px; position: relative; background-color: #fbfbfb; border: 1px solid #b8b8b8; clear:both; margin-top: 140px; ">
+	        	    <img src="http://codiqa.com/static/images/v2/image.png" alt="image" style="position: absolute; top: 50%; left: 50%; margin-left: -16px; margin-top: -18px" id="graph_outdoor">
+		        </div>
 		<h1 style="clear: both"> Humidity </h1>
 			<div class="temperature"><span id="humidity"></span><div class="label">%</div></div>
-
-		<h1 style="clear: both"> Today's Temperature </h1>
-		<div style="width: 288px; height: 100px; position: relative; background-color: #fbfbfb; border: 1px solid #b8b8b8;">
-            <img src="http://codiqa.com/static/images/v2/image.png" alt="image" style="position: absolute; top: 50%; left: 50%; margin-left: -16px; margin-top: -18px" id="graph">
-        </div>
     </div>
 	<div data-rote="footer" data-position="fixed">
         <div id="Remote" data-role="navbar" data-iconpos="top">
@@ -116,17 +131,17 @@
     </div>
     <div data-role="content">
         <div data-role="fieldcontain" style="margin-left:auto; margin-right:auto; width: 210px">
-            <fieldset data-role="controlgroup" data-type="horizontal">
-                <input id="radio1" name="type" value="A" type="radio" checked>
-                <label for="radio1">
+            <fieldset id="radio" data-role="controlgroup" data-type="horizontal">
+                <input id="radioA" name="type" value="A" type="radio" checked>
+                <label for="radioA">
                     A
                 </label>
-                <input id="radio2" name="type" value="B" type="radio">
-                <label for="radio2">
+                <input id="radioB" name="type" value="B" type="radio">
+                <label for="radioB">
                     B
                 </label>
-                <input id="radio3" name="type" value="C" type="radio">
-                <label for="radio3">
+                <input id="radioC" name="type" value="C" type="radio">
+                <label for="radioC">
                     C
                 </label>
             </fieldset>
@@ -138,7 +153,7 @@
             <div class="ui-block-b">
                 <div data-role="fieldcontain">
                     <fieldset data-role="controlgroup">
-                        <select name="toggleswitch4" id="toggleswitch4" data-theme="" data-role="slider">
+                        <select name="toggleswitch1" id="toggleswitch1" data-theme="" data-role="slider">
                             <option value="off">
                                 Off
                             </option>
@@ -155,7 +170,7 @@
             <div class="ui-block-b">
                 <div data-role="fieldcontain">
                     <fieldset data-role="controlgroup">
-                        <select name="toggleswitch5" id="toggleswitch5" data-theme="" data-role="slider">
+                        <select name="toggleswitch2" id="toggleswitch2" data-theme="" data-role="slider">
                             <option value="off">
                                 Off
                             </option>
@@ -172,7 +187,7 @@
             <div class="ui-block-b">
                 <div data-role="fieldcontain">
                     <fieldset data-role="controlgroup">
-                        <select name="toggleswitch7" id="toggleswitch7" data-theme="" data-role="slider">
+                        <select name="toggleswitch3" id="toggleswitch3" data-theme="" data-role="slider">
                             <option value="off">
                                 Off
                             </option>
@@ -189,7 +204,7 @@
             <div class="ui-block-b">
                 <div data-role="fieldcontain">
                     <fieldset data-role="controlgroup">
-                        <select name="toggleswitch6" id="toggleswitch6" data-theme="" data-role="slider">
+                        <select name="toggleswitch4" id="toggleswitch4" data-theme="" data-role="slider">
                             <option value="off">
                                 Off
                             </option>
