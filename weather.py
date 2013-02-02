@@ -14,8 +14,7 @@ class WeatherCommandResource(resource.Resource):
 		self.dataSink = sink
 		self.conf = conf
 	def render_GET(self, request):
-		data = json.dumps({"humidity": self.data['humidity'], "indoor_temp": self.data['indoor_temp'], "outdoor_temp": self.data['outdoor_temp'] })
-		return utils.jsonpCallback(request, data)
+		return utils.jsonpCallback(request, json.dumps(self.data))
 
 	def updateData(self, line):
 		try:
@@ -43,6 +42,6 @@ class WeatherCommandResource(resource.Resource):
 		self.timestamp = calendar.timegm(datetime.utcnow().utctimetuple())
 
 		# 3 consistent samples? lets publish this stuff!
-		if self.samples == self.conf['min_samples']:
+		if self.samples == self.conf['weather']['min_samples']:
 			self.dataSink.updateCOSM(self.data)
 			self.samples = 0
