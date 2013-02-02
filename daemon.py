@@ -87,6 +87,7 @@ class WeatherCommandResource(resource.Resource):
 	isLeaf = True
 	def __init__(self):
 		self.data = {'timestamp':0, 'humidity':0, 'indoor_temp':0, 'outdoor_temp':0}
+		self.cosmClient = HTTPClient(api_key=conf['cosm']['ApiKey'], feed_id=conf['cosm']['feed']) 
 	def render_GET(self, request):
 		data = json.dumps({"humidity": self.data['humidity'], "indoor_temp": self.data['indoor_temp'], "outdoor_temp": self.data['outdoor_temp'] })
 		return jsonpCallback(request, data)
@@ -117,11 +118,14 @@ class WeatherCommandResource(resource.Resource):
 		self.data['timestamp'] = calendar.timegm(datetime.utcnow().utctimetuple())
 
 		# 3 consistent samples? lets publish this stuff!
-		if self.samples == 3:
+		if self.samples == conf['min_samples']:
 			self.updateCOSM()
 			self.samples = 0
 
-	def errorlog(msg):
+	def successlog(self, msg):
+		print msg
+	
+	def errorlog(self, msg):
 		print msg
 
 	def updateCOSM(self):
@@ -131,8 +135,8 @@ class WeatherCommandResource(resource.Resource):
 
 		# Update the Cosm service with latest value(s)
 		d = self.cosmClient.update_feed(data=environment.encode())
-		d.addCallback(lambda result: errorlog("Cosm updated"))
-		d.addErrback(lambda reason: errorlog("Cosm update failed: %s" % str(reason)))
+		d.addCallback(self.successlog)
+		d.addErrback(self.errorlog)
 
 if __name__ == "__main__":
 	root = static.File('.')
