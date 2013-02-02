@@ -86,7 +86,8 @@ class RFCommandResource(resource.Resource):
 class WeatherCommandResource(resource.Resource):
 	isLeaf = True
 	def __init__(self):
-		self.data = {'timestamp':0, 'humidity':0, 'indoor_temp':0, 'outdoor_temp':0}
+		self.timestamp = 0
+		self.data = {'humidity':0, 'indoor_temp':0, 'outdoor_temp':0}
 		self.cosmClient = HTTPClient(api_key=conf['cosm']['ApiKey'], feed_id=conf['cosm']['feed']) 
 	def render_GET(self, request):
 		data = json.dumps({"humidity": self.data['humidity'], "indoor_temp": self.data['indoor_temp'], "outdoor_temp": self.data['outdoor_temp'] })
@@ -101,7 +102,7 @@ class WeatherCommandResource(resource.Resource):
 			return
 
 		# make sure we are in the same sample acquisition window, else we start from 0
-		if calendar.timegm(datetime.utcnow().utctimetuple()) - self.data['timestamp'] < 5:
+		if calendar.timegm(datetime.utcnow().utctimetuple()) - self.timestamp < 5:
 			if self.data['humidity'] == d[u'Humidity'] and self.data['indoor_temp'] ==  d[u'IndoorTemperature'] and self.data['outdoor_temp'] == d[u'OutdoorTemperature']:
 				self.samples+=1
 			else:
@@ -115,7 +116,7 @@ class WeatherCommandResource(resource.Resource):
 			self.data['indoor_temp'] =  d[u'IndoorTemperature']
 			self.data['outdoor_temp'] = d[u'OutdoorTemperature']
 			self.samples+=1
-		self.data['timestamp'] = calendar.timegm(datetime.utcnow().utctimetuple())
+		self.timestamp = calendar.timegm(datetime.utcnow().utctimetuple())
 
 		# 3 consistent samples? lets publish this stuff!
 		if self.samples == conf['min_samples']:
