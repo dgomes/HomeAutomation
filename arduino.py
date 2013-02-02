@@ -1,3 +1,4 @@
+import sys
 from twisted.protocols.basic import LineOnlyReceiver
 
 class USBClient(LineOnlyReceiver):

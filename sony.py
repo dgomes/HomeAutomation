@@ -1,3 +1,4 @@
+import utils
 import httplib
 from twisted.web import resource
 from os import path
@@ -26,15 +27,6 @@ class IRCommandResource(resource.Resource):
 	isLeaf = True
 	def __init__(self, serial):
 		self.serial = serial
-
-	def jsonpCallback(request, data):
-		callback = request.args.get('callback')
-
-		if callback:
-			callback = callback[0]
-			data = '%s(%s);' % (callback, data)
-			return data
-		return "callback({'error': 'no callback defined'})"
 
 	def render_GET(self, request):
 		command = request.path.split('/')

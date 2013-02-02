@@ -4,15 +4,18 @@ import json
 
 from twisted.web import server, resource, static
 
+import utils
+
 class WeatherCommandResource(resource.Resource):
 	isLeaf = True
 	def __init__(self, sink, conf):
 		self.timestamp = 0
 		self.data = {'humidity':0, 'indoor_temp':0, 'outdoor_temp':0}
 		self.dataSink = sink
+		self.conf = conf
 	def render_GET(self, request):
 		data = json.dumps({"humidity": self.data['humidity'], "indoor_temp": self.data['indoor_temp'], "outdoor_temp": self.data['outdoor_temp'] })
-		return jsonpCallback(request, data)
+		return utils.jsonpCallback(request, data)
 
 	def updateData(self, line):
 		try:
@@ -40,6 +43,6 @@ class WeatherCommandResource(resource.Resource):
 		self.timestamp = calendar.timegm(datetime.utcnow().utctimetuple())
 
 		# 3 consistent samples? lets publish this stuff!
-		if self.samples == conf['min_samples']:
-			sink.updateCOSM(self.data)
+		if self.samples == self.conf['min_samples']:
+			self.dataSink.updateCOSM(self.data)
 			self.samples = 0

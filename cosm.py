@@ -12,8 +12,8 @@ class CosmInterface():
 
 	def updateCOSM(self, data):
 		environment = txcosm.Environment(version="1.0.0")
-		for i in self.data.keys():
-			environment.setCurrentValue(i, self.data[i])
+		for i in data.keys():
+			environment.setCurrentValue(i, data[i])
 
 		# Update the Cosm service with latest value(s)
 		d = self.cosmClient.update_feed(data=environment.encode())
