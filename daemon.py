@@ -15,6 +15,9 @@ from twisted.internet.serialport import SerialPort
 from twisted.web import server, resource, static
 from twisted.python import log
 
+import txcosm
+from txcosm.HTTPClient import HTTPClient
+
 import json
 
 import sony
@@ -28,9 +31,9 @@ log.startLogging(sys.stdout)
 def jsonpCallback(request, data):
 	callback = request.args.get('callback')
 
-	if callback: 
-		callback = callback[0] 
-		data = '%s(%s);' % (callback, data) 
+	if callback:
+		callback = callback[0]
+		data = '%s(%s);' % (callback, data)
 		return data
 	return "callback({'error': 'no callback defined'})"
 
@@ -83,7 +86,7 @@ class RFCommandResource(resource.Resource):
 class WeatherCommandResource(resource.Resource):
 	isLeaf = True
 	def __init__(self):
-		self.data = {'timestamp':0, 'humidity':0, 'indoor_temp':0, 'outdoor_temp':0} 
+		self.data = {'timestamp':0, 'humidity':0, 'indoor_temp':0, 'outdoor_temp':0}
 	def render_GET(self, request):
 		data = json.dumps({"humidity": self.data['humidity'], "indoor_temp": self.data['indoor_temp'], "outdoor_temp": self.data['outdoor_temp'] })
 		return jsonpCallback(request, data)
@@ -96,17 +99,17 @@ class WeatherCommandResource(resource.Resource):
 		except:
 			return
 
-		# make sure we are in the same sample acquisition window, else we start from 0	
+		# make sure we are in the same sample acquisition window, else we start from 0
 		if calendar.timegm(datetime.utcnow().utctimetuple()) - self.data['timestamp'] < 5:
 			if self.data['humidity'] == d[u'Humidity'] and self.data['indoor_temp'] ==  d[u'IndoorTemperature'] and self.data['outdoor_temp'] == d[u'OutdoorTemperature']:
-				self.samples+=1 	
+				self.samples+=1
 			else:
 				self.samples-=1
 		else:
 			self.samples = 0
-		
+
 		# we don't have enough samples so we take a new measure
-		if self.samples < 1:	
+		if self.samples < 1:
 			self.data['humidity'] = d[u'Humidity']
 			self.data['indoor_temp'] =  d[u'IndoorTemperature']
 			self.data['outdoor_temp'] = d[u'OutdoorTemperature']
@@ -118,19 +121,18 @@ class WeatherCommandResource(resource.Resource):
 			self.updateCOSM()
 			self.samples = 0
 
-	def updateCOSM(self):
-		datastream = json.dumps({"version": "1.0.0", "datastreams": [ { "id": "humidity", "current_value": self.data['humidity'] }, {"id": "indoor_temp", "current_value": self.data['indoor_temp']}, {"id": "outdoor_temp", "current_value": self.data['outdoor_temp'] }]})
-		headers = {"Content-type": "text/json", "X-ApiKey": conf['cosm']['ApiKey']}
+	def errorlog(msg):
+		print msg
 
-		try:
-			conn = httplib.HTTPConnection("api.cosm.com")
-			conn.request("PUT", "/v2/feeds/"+str(conf['cosm']['feed']), datastream, headers)
-			if conn.getresponse().status == 200:
-				print "COSM update SUCCESSFULY"
-			else:
-				print "COSM updaye FAILED!"
-		except:
-			log.err()
+	def updateCOSM(self):
+		environment = txcosm.Environment(version="1.0.0")
+		for i in self.data.keys():
+			environment.setCurrentValue(i, self.data[i])
+
+		# Update the Cosm service with latest value(s)
+		d = self.cosmClient.update_feed(data=environment.encode())
+		d.addCallback(lambda result: errorlog("Cosm updated"))
+		d.addErrback(lambda reason: errorlog("Cosm update failed: %s" % str(reason)))
 
 if __name__ == "__main__":
 	root = static.File('.')
