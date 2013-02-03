@@ -30,5 +30,5 @@ class RFCommandResource(resource.Resource):
 			self.serial.writeSomeData(cmd)
 		except:
 			log.err()
-			return jsonpCallback(request, "{ 'result': 400 }")
-		return jsonpCallback(request, "{ 'result': 200 }")
+			return utils.jsonpCallback(request, "{ 'result': 400 }")
+		return utils.jsonpCallback(request, "{ 'result': 200 }")

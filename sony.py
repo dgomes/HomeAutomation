@@ -1,3 +1,4 @@
+import logging
 import utils
 import httplib
 from twisted.web import resource
@@ -30,12 +31,11 @@ class IRCommandResource(resource.Resource):
 
 	def render_GET(self, request):
 		command = request.path.split('/')
-		print command
 		try:
 			cmd = Sony.codes[command[2]]
 			self.serial.writeSomeData(cmd)
 		except:
 			log.err()
-			return jsonpCallback(request, "{ 'result': 400 }")
-		return jsonpCallback(request, "{ 'result': 200 }")
+			return utils.jsonpCallback(request, "{ 'result': 400 }")
+		return utils.jsonpCallback(request, "{ 'result': 200 }")
 

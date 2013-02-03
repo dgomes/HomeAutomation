@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import logging
 import yaml
 import sys
 from serial.serialutil import SerialException
@@ -15,6 +16,7 @@ from chacon import RFCommandResource
 from weather import WeatherCommandResource
 from imeter import IMeterCommandResource
 
+logging.basicConfig(format='%(asctime)-6s [%(name)s] %(message)s',level=logging.ERROR)
 log.startLogging(sys.stdout)
 #log.startLogging(open(conf['logfile'], 'w'))
 
