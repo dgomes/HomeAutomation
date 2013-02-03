@@ -13,6 +13,7 @@ from cosm import CosmInterface
 from sony import IRCommandResource
 from chacon import RFCommandResource
 from weather import WeatherCommandResource
+from imeter import IMeterCommandResource
 
 log.startLogging(sys.stdout)
 #log.startLogging(open(conf['logfile'], 'w'))
@@ -32,6 +33,8 @@ if __name__ == "__main__":
 		root.putChild("Weather", weather)
 	except SerialException as e:
 		log.err()
+
+	imeter = IMeterCommandResource(cosm, conf)
 
 	reactor.listenTCP(conf['port'], server.Site(root))
 	reactor.run()
