@@ -33,7 +33,7 @@ class IMeterCommandResource(resource.Resource):
 			scrap = non_decimal.sub('', scrap)
 			data = scrap.split('\n')
 			if self.data['energy'] != 0:
-				self.data['energySpent'] = (int(data[1]) - self.data['energy'])*(3600/int(self.conf['imeter']['pool_interval']))
+				self.data['energySpent'] = (int(data[1]) - self.data['energy'])
 			else:
 				del self.data['energySpent']
 			self.data['energy'] = int(data[1])
@@ -44,5 +44,5 @@ class IMeterCommandResource(resource.Resource):
 			#TODO check if Last Recption changed ...
 			self.dataSink.updateCOSM(self.data, self.conf['imeter']['feed_id'])
 		except Exception as e:
-			print e
+			log.err(e)
 
