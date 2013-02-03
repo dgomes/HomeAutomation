@@ -37,7 +37,7 @@ class IMeterCommandResource(resource.Resource):
 				self.data['energySpent'] = int(data[1]) - self.data['energy']
 			self.data['energy'] = int(data[1])
 			self.data['power'] = int(data[2])
-			print self.data
+			print 'iMeter:	', self.data
 			self.dataSink.updateCOSM(self.data, self.conf['imeter']['feed_id'])
 		except Exception as e:
 			print e
