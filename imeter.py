@@ -34,7 +34,7 @@ class IMeterCommandResource(resource.Resource):
 			data = scrap.split('\n')
 
 			if self.data['energy'] != 0:
-				self.data['energySpent'] = int(data[1]) - self.data['energy']
+				self.data['energySpent'] = (int(data[1]) - self.data['energy'])*(60/int(conf['imeter']['pool_interval']))
 			self.data['energy'] = int(data[1])
 			self.data['power'] = int(data[2])
 			print 'iMeter:	', self.data
