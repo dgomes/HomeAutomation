@@ -16,7 +16,7 @@ class IMeterCommandResource(resource.Resource):
 		self.dataSink = sink
 		self.conf = conf
 		l = task.LoopingCall(self.cronJob)
-		l.start(float(conf['imeter']['pool_interval']))
+		l.start(float(self.conf['imeter']['pool_interval']))
 
 	def render_GET(self, request):
 		data = json.dumps(self.data)
@@ -32,12 +32,16 @@ class IMeterCommandResource(resource.Resource):
 			non_decimal = re.compile(r'[^\d\n.]+')
 			scrap = non_decimal.sub('', scrap)
 			data = scrap.split('\n')
-
 			if self.data['energy'] != 0:
-				self.data['energySpent'] = (int(data[1]) - self.data['energy'])*(60/int(conf['imeter']['pool_interval']))
+				self.data['energySpent'] = (int(data[1]) - self.data['energy'])*(60/int(self.conf['imeter']['pool_interval']))
+			else:
+				del self.data['energySpent']
 			self.data['energy'] = int(data[1])
 			self.data['power'] = int(data[2])
 			print 'iMeter:	', self.data
+
+
+			#TODO check if Last Recption changed ...
 			self.dataSink.updateCOSM(self.data, self.conf['imeter']['feed_id'])
 		except Exception as e:
 			print e
