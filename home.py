@@ -9,8 +9,9 @@ class Resource(resource.Resource):
 			self.data = None
 		self.dataSink = sink
 		self.conf = conf
-		l = task.LoopingCall(self.cronJob)
-		l.start(float(conf[self.confid]['pool_interval']))
+		if 'pool_interval' in conf[self.confid]:
+			l = task.LoopingCall(self.cronJob)
+			l.start(float(conf[self.confid]['pool_interval']))
 
 	@staticmethod
 	def _jsonpCallback(request, data):
