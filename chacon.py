@@ -1,5 +1,4 @@
-import utils
-import httplib
+import home
 from os import path
 from twisted.web import resource
 
@@ -30,5 +29,5 @@ class RFCommandResource(resource.Resource):
 			self.serial.writeSomeData(cmd)
 		except:
 			log.err()
-			return utils.jsonpCallback(request, "{ 'result': 400 }")
-		return utils.jsonpCallback(request, "{ 'result': 200 }")
+			return home.Resource.jsonpCallback(request, "{ 'result': 400 }")
+		return home.Resource.jsonpCallback(request, "{ 'result': 200 }")
