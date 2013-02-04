@@ -4,17 +4,14 @@ import json
 
 from twisted.web import resource
 
-import utils
+import home
 
-class WeatherCommandResource(resource.Resource):
-	isLeaf = True
+class WeatherCommandResource(home.Resource):
 	def __init__(self, sink, conf):
+		self.confid = 'weather'
 		self.timestamp = 0
 		self.data = {'humidity':0, 'indoor_temp':0, 'outdoor_temp':0}
-		self.dataSink = sink
-		self.conf = conf
-	def render_GET(self, request):
-		return utils.jsonpCallback(request, json.dumps(self.data))
+		home.Resource.__init__(self, sink, conf)
 
 	def updateData(self, line):
 		try:
