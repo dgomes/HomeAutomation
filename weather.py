@@ -43,5 +43,6 @@ class WeatherCommandResource(resource.Resource):
 
 		# 3 consistent samples? lets publish this stuff!
 		if self.samples == self.conf['weather']['min_samples']:
+			print "Weather Info:	", self.data
 			self.dataSink.updateCOSM(self.data, self.conf['weather']['feed_id'])
 			self.samples = 0
