@@ -7,6 +7,7 @@ import re
 from BeautifulSoup import BeautifulSoup
 from twisted.internet import task
 from twisted.web import resource
+from twisted.web.client import getPage
 
 class IMeterCommandResource(resource.Resource):
 	isLeaf = True
@@ -23,9 +24,13 @@ class IMeterCommandResource(resource.Resource):
 		return jsonpCallback(request, data)
 
 	def cronJob(self):
+		getPage(self.conf['imeter']['url']).addCallbacks(callback=self._cb_success, errback=self._cb_error)
+
+	def _cb_error(self, msg):
+		print "Error getting page from imeter"
+
+	def _cb_success(self, html):
 		try:
-			response = urllib2.urlopen(self.conf['imeter']['url'], timeout=10)
-			html = response.read()
 			soup = BeautifulSoup(html)
 			#this is fine tuned :)
 			scrap = str(soup.findAll('td')[15])
