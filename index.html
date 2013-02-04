@@ -14,7 +14,7 @@
 
     <!-- User-generated js -->
     <script>
-	server_addr = "http://192.168.1.10:8888/";
+	server_addr = "http://"+location.host+"/";
 	var remote = function(cmd) {
 		try {
 		$.getJSON(server_addr+cmd+"/?callback=?",
@@ -41,7 +41,7 @@
 				setTimeout(worker, 30*1000);
 			});
 	}
-	
+
 	function toggle() {
 		$("select option:selected").each(function () {
 	            str += $(this).text() + " ";
