@@ -1,3 +1,8 @@
+Dependencies
+============
+
+https://raw.github.com/vincentbernat/wiremaps/master/wiremaps/collector/snmp.c
+
 HomeAutomation
 ==============
 
@@ -16,6 +21,6 @@ serial:
  port: /dev/ttyUSB0
  baudrate: 115200
 cosm:
- ApiKey: fwoifjedovheovjeOHFRUHojRORhUOORFOORFHRFO 
+ ApiKey: fwoifjedovheovjeOHFRUHojRORhUOORFOORFHRFO
  feed:12345
 </pre>
