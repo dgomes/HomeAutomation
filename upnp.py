@@ -48,6 +48,7 @@ class UPnPCommandResource(resource.Resource):
 			self.data['outBytes'] = sent
 			self.timestamp = now
 			print 'IGD:	', json.dumps(self.data)
+			self.dataSink.updateCOSM(self.data, self.conf['igd']['feed_id'])
 		except Exception, e:
 			print "Error getting IGD Stats: ", e
 
