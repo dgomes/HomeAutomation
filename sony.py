@@ -1,6 +1,5 @@
 import logging
-import utils
-import httplib
+import home
 from twisted.web import resource
 from os import path
 
@@ -36,6 +35,6 @@ class IRCommandResource(resource.Resource):
 			self.serial.writeSomeData(cmd)
 		except:
 			log.err()
-			return utils.jsonpCallback(request, "{ 'result': 400 }")
-		return utils.jsonpCallback(request, "{ 'result': 200 }")
+			return home.Resource._jsonpCallback(request, "{ 'result': 400 }")
+		return home.Resource._jsonpCallback(request, "{ 'result': 200 }")
 
