@@ -2,25 +2,16 @@ import json
 import urllib2
 import re
 
-import utils
+import home
 
 from BeautifulSoup import BeautifulSoup
-from twisted.internet import task
-from twisted.web import resource
 from twisted.web.client import getPage
 
-class IMeterCommandResource(resource.Resource):
-	isLeaf = True
+class IMeterCommandResource(home.Resource):
 	def __init__(self, sink, conf):
+		self.confid = 'imeter'
 		self.data = {'energy':0, 'power':0, 'energySpent':0}
-		self.dataSink = sink
-		self.conf = conf
-		l = task.LoopingCall(self.cronJob)
-		l.start(float(self.conf['imeter']['pool_interval']))
-
-	def render_GET(self, request):
-		data = json.dumps(self.data)
-		return utils.jsonpCallback(request, data)
+		home.Resource.__init__(self, sink, conf)
 
 	def cronJob(self):
 		getPage(self.conf['imeter']['url']).addCallbacks(callback=self._cb_success, errback=self._cb_error)

@@ -6,29 +6,20 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import QName
 import json
 
-import utils
+import home
 
 from SOAPpy import *
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 from twisted.web.client import getPage
-from twisted.internet import task
-from twisted.web import resource
 
-class UPnPCommandResource(resource.Resource):
-	isLead = True
+class UPnPCommandResource(home.Resource):
 	def __init__(self, sink, conf):
+		self.confid = 'igd'
 		self.timestamp = 0
 		self.data = {'downloadRate':0, 'inBytes':0, 'uploadRate':0, 'outBytes':0}
-		self.dataSink = sink
-		self.conf = conf
 		self.upnpc = UPnPClient()
-		l = task.LoopingCall(self.cronJob)
-		l.start(float(conf['igd']['pool_interval']))
-
-	def render_GET(self, request):
-		data = json.dumps(self.data)
-		return utils.jsonpCallback(request, data)
+		home.Resource.__init__(self, sink, conf)
 
 	def cronJob(self):
 		if self.upnpc.endpoint == None: return
