@@ -9,6 +9,7 @@ from twisted.internet.serialport import SerialPort
 from twisted.web import server, static
 from twisted.python import log
 
+from upnp import *
 from arduino import USBClient
 from cosm import CosmInterface
 from sony import IRCommandResource
@@ -37,6 +38,9 @@ if __name__ == "__main__":
 		log.err()
 
 	imeter = IMeterCommandResource(cosm, conf)
+	root.putChild("imeter", imeter)
+	igd = UPnPCommandResource(cosm, conf)
+	root.putChild("igd", igd)
 
 	reactor.listenTCP(conf['port'], server.Site(root))
 	reactor.run()
