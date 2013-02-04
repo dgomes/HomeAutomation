@@ -12,6 +12,7 @@ class Resource(resource.Resource):
 		l = task.LoopingCall(self.cronJob)
 		l.start(float(conf[self.confid]['pool_interval']))
 
+	@staticmethod
 	def _jsonpCallback(request, data):
 		callback = request.args.get('callback')
 
