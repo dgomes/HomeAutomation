@@ -1,8 +1,8 @@
-from datetime import datetime
-import calendar
 import json
 import urllib2
 import re
+
+import utils
 
 from BeautifulSoup import BeautifulSoup
 from twisted.internet import task
@@ -12,7 +12,6 @@ from twisted.web.client import getPage
 class IMeterCommandResource(resource.Resource):
 	isLeaf = True
 	def __init__(self, sink, conf):
-		self.timestamp = 0
 		self.data = {'energy':0, 'power':0, 'energySpent':0}
 		self.dataSink = sink
 		self.conf = conf
@@ -21,7 +20,7 @@ class IMeterCommandResource(resource.Resource):
 
 	def render_GET(self, request):
 		data = json.dumps(self.data)
-		return jsonpCallback(request, data)
+		return utils.jsonpCallback(request, data)
 
 	def cronJob(self):
 		getPage(self.conf['imeter']['url']).addCallbacks(callback=self._cb_success, errback=self._cb_error)
