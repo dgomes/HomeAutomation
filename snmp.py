@@ -18,14 +18,12 @@ class SNMPResource(home.Resource):
 		home.Resource.__init__(self, sink)
 
 	def _cbSuccess(self, results):
-		print "success"
 		print results
 
 	def _cbError(self, msg):
 		print msg
 
 	def cronJob(self):
-		print "CronJob"
 		d = self.proxy.get(oids)
 		d.addCallbacks( callback=self._cbSuccess, errback=self._cbError)
 
