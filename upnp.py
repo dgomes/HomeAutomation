@@ -13,7 +13,7 @@ from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 from twisted.web.client import getPage
 
-class UPnPCommandResource(home.Resource):
+class UPnPResource(home.Resource):
 	def __init__(self, sink, conf):
 		self.conf = conf['igd']
 		self.timestamp = 0
