@@ -4,14 +4,15 @@ from twisted.internet import reactor
 
 class Resource(resource.Resource):
 	isLeaf = True
-	def __init__(self, sink, conf):
+	def __init__(self, sink):
 		if not hasattr(self, 'data'):
 			self.data = None
+		if not hasattr(self, 'conf'):
+			self.conf = None
 		self.dataSink = sink
-		self.conf = conf
-		if 'pool_interval' in conf[self.confid]:
+		if 'pool_interval' in self.conf:
 			l = task.LoopingCall(self.cronJob)
-			l.start(float(conf[self.confid]['pool_interval']))
+			l.start(float(self.conf['pool_interval']))
 
 	@staticmethod
 	def _jsonpCallback(request, data):

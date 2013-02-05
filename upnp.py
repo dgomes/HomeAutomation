@@ -15,11 +15,11 @@ from twisted.web.client import getPage
 
 class UPnPCommandResource(home.Resource):
 	def __init__(self, sink, conf):
-		self.confid = 'igd'
+		self.conf = conf['igd']
 		self.timestamp = 0
 		self.data = {'downloadRate':0, 'inBytes':0, 'uploadRate':0, 'outBytes':0}
 		self.upnpc = UPnPClient()
-		home.Resource.__init__(self, sink, conf)
+		home.Resource.__init__(self, sink)
 
 	def cronJob(self):
 		if self.upnpc.endpoint == None: return
@@ -39,7 +39,7 @@ class UPnPCommandResource(home.Resource):
 			self.data['outBytes'] = sent
 			self.timestamp = now
 			print 'IGD:	', json.dumps(self.data)
-			self.dataSink.updateCOSM(self.data, self.conf['igd']['feed_id'])
+			self.dataSink.updateCOSM(self.data, self.conf['feed_id'])
 		except Exception, e:
 			print "Error getting IGD Stats: ", e
 

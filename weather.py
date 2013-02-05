@@ -8,10 +8,10 @@ import home
 
 class WeatherCommandResource(home.Resource):
 	def __init__(self, sink, conf):
-		self.confid = 'weather'
+		self.conf = conf['weather']
 		self.timestamp = 0
 		self.data = {'humidity':0, 'indoor_temp':0, 'outdoor_temp':0}
-		home.Resource.__init__(self, sink, conf)
+		home.Resource.__init__(self, sink)
 
 	def updateData(self, line):
 		try:
@@ -39,7 +39,7 @@ class WeatherCommandResource(home.Resource):
 		self.timestamp = calendar.timegm(datetime.utcnow().utctimetuple())
 
 		# 3 consistent samples? lets publish this stuff!
-		if self.samples == self.conf['weather']['min_samples']:
+		if self.samples == self.conf['min_samples']:
 			print "Weather Info:	", self.data
-			self.dataSink.updateCOSM(self.data, self.conf['weather']['feed_id'])
+			self.dataSink.updateCOSM(self.data, self.conf['feed_id'])
 			self.samples = 0

@@ -9,12 +9,12 @@ from twisted.web.client import getPage
 
 class IMeterCommandResource(home.Resource):
 	def __init__(self, sink, conf):
-		self.confid = 'imeter'
+		self.conf = conf['imeter']
 		self.data = {'energy':0, 'power':0, 'energySpent':0}
-		home.Resource.__init__(self, sink, conf)
+		home.Resource.__init__(self, sink)
 
 	def cronJob(self):
-		getPage(self.conf['imeter']['url']).addCallbacks(callback=self._cb_success, errback=self._cb_error)
+		getPage(self.conf['url']).addCallbacks(callback=self._cb_success, errback=self._cb_error)
 
 	def _cb_error(self, msg):
 		print "Error getting page from imeter"
@@ -36,7 +36,7 @@ class IMeterCommandResource(home.Resource):
 			print 'iMeter:	', self.data
 
 			#TODO check if Last Recption changed ...
-			self.dataSink.updateCOSM(self.data, self.conf['imeter']['feed_id'])
+			self.dataSink.updateCOSM(self.data, self.conf['feed_id'])
 		except Exception as e:
 			log.err(e)
 
