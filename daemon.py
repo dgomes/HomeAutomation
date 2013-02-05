@@ -9,7 +9,7 @@ from twisted.internet.serialport import SerialPort
 from twisted.web import server, static
 from twisted.python import log
 
-from snmp import *
+from airport import *
 from weather import *
 from upnp import *
 from imeter import *
@@ -42,7 +42,7 @@ if __name__ == "__main__":
 	root.putChild("imeter", imeter)
 	igd = UPnPResource(cosm, conf)
 	root.putChild("igd", igd)
-	airport = SNMPResource(cosm, conf)
+	airport = AirportResource(cosm, conf)
 	root.putChild("airport", airport)
 
 	reactor.listenTCP(conf['port'], server.Site(root))
