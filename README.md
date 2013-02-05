@@ -16,11 +16,22 @@ In order to execute the daemon you require a configuration file named settings.y
 Example contents of settings.yaml:
 
 <pre>
-port: 8000
+logfile: sys.stdout
+port: 8888
 serial:
- port: /dev/ttyUSB0
+ port: /dev/tty.usbmodemfd111
  baudrate: 115200
+igd:
+ feed_id: 11111
+ pool_interval: 30
+imeter:
+ url: "http://imeter.local./listdev.htm"
+ feed_id: 22222
+ pool_interval: 300
+weather:
+ feed_id: 33333
+airport:
+ pool_interval: 100
 cosm:
  ApiKey: fwoifjedovheovjeOHFRUHojRORhUOORFOORFHRFO
- feed:12345
 </pre>
