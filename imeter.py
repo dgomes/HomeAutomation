@@ -7,7 +7,7 @@ import home
 from BeautifulSoup import BeautifulSoup
 from twisted.web.client import getPage
 
-class IMeterCommandResource(home.Resource):
+class IMeterResource(home.Resource):
 	def __init__(self, sink, conf):
 		self.conf = conf['imeter']
 		self.data = {'energy':0, 'power':0, 'energySpent':0}

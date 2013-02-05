@@ -9,13 +9,14 @@ from twisted.internet.serialport import SerialPort
 from twisted.web import server, static
 from twisted.python import log
 
+from airport import *
+from weather import *
 from upnp import *
-from arduino import USBClient
-from cosm import CosmInterface
-from sony import IRCommandResource
-from chacon import RFCommandResource
-from weather import WeatherCommandResource
-from imeter import IMeterCommandResource
+from imeter import *
+from sony import *
+from chacon import *
+from arduino import *
+from cosm import *
 
 logging.basicConfig(format='%(asctime)-6s [%(name)s] %(message)s',level=logging.ERROR)
 log.startLogging(sys.stdout)
@@ -26,7 +27,7 @@ if __name__ == "__main__":
 	root = static.File('.')
 
 	cosm = CosmInterface(conf)
-	weather = WeatherCommandResource(cosm, conf)
+	weather = WeatherResource(cosm, conf)
 	try:
 		serial = SerialPort(USBClient(weather.updateData), conf['serial']['port'], reactor, baudrate=conf['serial']['baudrate'])
 		ir = IRCommandResource(serial)
@@ -37,10 +38,12 @@ if __name__ == "__main__":
 	except SerialException as e:
 		log.err()
 
-	imeter = IMeterCommandResource(cosm, conf)
+	imeter = IMeterResource(cosm, conf)
 	root.putChild("imeter", imeter)
-	igd = UPnPCommandResource(cosm, conf)
+	igd = UPnPResource(cosm, conf)
 	root.putChild("igd", igd)
+	airport = AirportResource(cosm, conf)
+	root.putChild("airport", airport)
 
 	reactor.listenTCP(conf['port'], server.Site(root))
 	reactor.run()

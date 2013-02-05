@@ -13,7 +13,7 @@ from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 from twisted.web.client import getPage
 
-class UPnPCommandResource(home.Resource):
+class UPnPResource(home.Resource):
 	def __init__(self, sink, conf):
 		self.conf = conf['igd']
 		self.timestamp = 0
@@ -28,18 +28,19 @@ class UPnPCommandResource(home.Resource):
 			sent = self.upnpc.GetTotalBytesSent()
 			now = calendar.timegm(datetime.utcnow().utctimetuple())
 			self.data['downloadRate'] = (rcvd - self.data['inBytes']) / (now - self.timestamp)
-			self.data['downloadRate'] = self.data['downloadRate'] * 8 / 1024 #conver bytes per second to kilo bits per second
+			self.data['downloadRate'] = self.data['downloadRate'] * 8 / 1024 #convert bytes per second to kilo bits per second
 			if self.data['downloadRate'] <= 0:
 				del self.data['downloadRate']
 			self.data['uploadRate'] = (sent - self.data['outBytes']) / (now - self.timestamp)
-			self.data['uploadRate'] = self.data['uploadRate'] * 8 / 1024 #conver bytes per second to kilo bits per second
+			self.data['uploadRate'] = self.data['uploadRate'] * 8 / 1024 #convert bytes per second to kilo bits per second
 			if self.data['uploadRate'] <= 0:
 				del self.data['uploadRate']
 			self.data['inBytes'] = rcvd
 			self.data['outBytes'] = sent
-			self.timestamp = now
 			print 'IGD:	', json.dumps(self.data)
-			self.dataSink.updateCOSM(self.data, self.conf['feed_id'])
+			if self.timestamp != 0:	#discard first results
+				self.dataSink.updateCOSM(self.data, self.conf['feed_id'])
+			self.timestamp = now
 		except Exception, e:
 			print "Error getting IGD Stats: ", e
 

@@ -56,9 +56,9 @@
 
 		$('select').each(function() {
 			$(this).change(function() {
-				var cmd = "RF/"+$("input:checked").val();
-				cmd += $.trim($("option:selected", this).parentsUntil(".ui-block-b").parent().prev().text());
-				cmd += "/"+$("option:selected", this).val();
+				var cmd = "RF/"+$("input:checked").val(); //get the channel
+				cmd += $.trim($("option:selected", this).parents(".ui-block-b").prev().text()); //go to the previous block label to figure which device
+				cmd += "/"+$("option:selected", this).val(); // on vs off
 				remote(cmd);
 			});
 		});
@@ -127,6 +127,7 @@
 <!-- Chacon RF Remote -->
 <div data-role="page" id="chacon" data-add-back-btn="true">
     <div data-theme="a" data-role="header">
+		<a href="#" data-role="button" data-rel="back" data-icon="arrow-l">Back</a>
         <h3>Chacon</h3>
     </div>
     <div data-role="content">
@@ -222,7 +223,8 @@
 <!-- SONY -->
 <div data-role="page" id="sony" data-add-back-btn="true">
     <div data-theme="a" data-role="header">
-        <h3>
+		<a href="#" data-role="button" data-rel="back" data-icon="arrow-l">Back</a>
+		<h3>
             SONY
         </h3>
     </div>

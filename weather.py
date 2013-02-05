@@ -6,7 +6,7 @@ from twisted.web import resource
 
 import home
 
-class WeatherCommandResource(home.Resource):
+class WeatherResource(home.Resource):
 	def __init__(self, sink, conf):
 		self.conf = conf['weather']
 		self.timestamp = 0
