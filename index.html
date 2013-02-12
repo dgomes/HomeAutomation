@@ -31,7 +31,6 @@
 	function worker() {
 		$.getJSON(server_addr+"Weather/?callback=?",
 			function(data) {
-				console.log(data);
 				$('#indoor_temp').html(data.indoor_temp);
 				$('#outdoor_temp').html(data.outdoor_temp);
 				$('#humidity').html(data.humidity);
@@ -57,12 +56,15 @@
 		height: 80,
 		max: 100,
 		min: 0,
-		width: 220
+		width: 140
+	}
+	$.fn.peity.defaults.pie = {
+		colours: ["f15a24", "#dddddd"],
+		diameter: 70 
 	}
 	function stats() {
 		$.getJSON(server_addr+"system/",
 			function(data) {
-				console.log(data);
 				var values = $('#cpuUsageLine').text().split(",");
 				values.shift();
 				values.push(data.cpuUsage);
@@ -76,6 +78,7 @@
 				$.each(data.disk, function(key, val) {
 					$('#diskUsage'+index).text((val.used/val.total * 100).toPrecision(3));
 					$('#diskUsagePie'+index).text(val.used/1024/1024+'/'+val.total/1024/1024).change();
+					index ++;
 				});
 			})
 		.complete(function() {
@@ -87,20 +90,20 @@
 		$('#sony_volup').click(function() { remote("IR/volup"); });
 		$('#sony_voldown').click(function() { remote("IR/voldown"); });
 
-
+		//Initialize system stats
 		$.getJSON(server_addr+'system/', function(data) {
-			console.log(data)
 			$('#cpuUsageLine').peity("line");
 			$('#memPie').peity("pie");
 			index = 1;
 			$.each(data.disk, function(key, val) {
-				$('#diskUsage').append('<div class="half box"><div class="label">'+key+'</div><span id="diskUsage'+index+'"></span><div class="label">%</div></div><span class="pie" id="diskUsagePie'+index+'" data-colours=\'["f15a24", "#dddddd"]\' data-diameter="70">0/100</span>')
+				$('#diskUsage').append('<div class="disk"><div class="half box"><div class="label">'+key+'</div><span id="diskUsage'+index+'"></span><div class="label">%</div></div><span class="pie graph" id="diskUsagePie'+index+'">0/100</span></div>')
 				$('#diskUsagePie'+index).peity("pie");
 				index++;
 			});
 			stats();
 		});
-
+		
+		//Chacon init
 		$('select').each(function() {
 			$(this).change(function() {
 				var cmd = "RF/"+$("input:checked").val(); //get the channel
@@ -109,7 +112,9 @@
 				remote(cmd);
 			});
 		});
-//		worker();
+
+		//Weather Info
+		worker();
 	});
 
 
@@ -123,7 +128,7 @@
 			color: white;
 			height: 50px;
 			padding: 8px 20px 8px 20px;
-			margin: 16px;
+			margin: 0px 16px;
 			font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 			font-size: 25px;
 			font-style: normal;
@@ -134,6 +139,10 @@
 		.graph {
 			padding: 8px 20px 8px 20px;
 			margin: 16px;
+			clear: both;
+		}
+		.disk {
+			clear: both;
 		}
 		.half {
 			width: 70px;
@@ -192,7 +201,7 @@
 		<h1> CPU Usage</h1>
 			<div class="half box"><span id="cpuUsage"></span><div class="label">%</div></div><span class="line graph" id="cpuUsageLine">0</span>
 		<h1 style="clear: both"> Memory Usage </h1>
-			<div class="half box"><span id="memUsed"></span><div class="label">MB</div></div><span class="pie" id="memPie" data-colours='["f15a24", "#dddddd"]' data-diameter="70">0/100</span>
+			<div class="half box"><span id="memUsed"></span><div class="label">MB</div></div><span class="pie graph" id="memPie">0/100</span>
 		<h1 style="clear: both"> Disk Usage </h1>
 			<span id="diskUsage">
 			</span>
