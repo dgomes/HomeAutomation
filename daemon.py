@@ -9,6 +9,7 @@ from twisted.internet.serialport import SerialPort
 from twisted.web import server, static
 from twisted.python import log
 
+from system import *
 from airport import *
 from weather import *
 from upnp import *
@@ -44,6 +45,8 @@ if __name__ == "__main__":
 	root.putChild("igd", igd)
 	airport = AirportResource(cosm, conf)
 	root.putChild("airport", airport)
+	system = SystemResource()
+	root.putChild("system", system)
 
 	reactor.listenTCP(conf['port'], server.Site(root))
 	reactor.run()
