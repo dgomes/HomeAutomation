@@ -47,6 +47,8 @@ if __name__ == "__main__":
 	root.putChild("airport", airport)
 	system = SystemResource()
 	root.putChild("system", system)
+    notify = NotifyResource(conf)
+	root.putChild("notify", notify)
 
 	reactor.listenTCP(conf['port'], server.Site(root))
 	reactor.run()
