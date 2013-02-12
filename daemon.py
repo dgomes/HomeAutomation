@@ -19,11 +19,11 @@ from arduino import *
 from cosm import *
 
 logging.basicConfig(format='%(asctime)-6s [%(name)s] %(message)s',level=logging.ERROR)
-log.startLogging(sys.stdout)
-#log.startLogging(open(conf['logfile'], 'w'))
 
 if __name__ == "__main__":
 	conf = yaml.load(file('settings.yaml', 'r'))
+	#log.startLogging(open(conf['logfile'], 'w'))
+	log.startLogging(sys.stdout)
 	root = static.File('.')
 
 	cosm = CosmInterface(conf)
