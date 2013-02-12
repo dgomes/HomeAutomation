@@ -11,6 +11,7 @@
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
 	<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
+	<script src="http://benpickles.github.com/peity/jquery.peity.min.js"></script>
 
     <!-- User-generated js -->
     <script>
@@ -48,11 +49,57 @@
 		  });
 	}
 
+	$.fn.peity.defaults.line = {
+		colour: "#f1aa74",
+		strokeColour: "#f15a24",
+		strokeWidth: 1,
+		delimiter: ",",
+		height: 80,
+		max: 100,
+		min: 0,
+		width: 220
+	}
+	function stats() {
+		$.getJSON(server_addr+"system/",
+			function(data) {
+				console.log(data);
+				var values = $('#cpuUsageLine').text().split(",");
+				values.shift();
+				values.push(data.cpuUsage);
+				$('#cpuUsageLine').text(values.join(",")).change();
+				$('#cpuUsage').text(data.cpuUsage);
 
+				$('#memUsed').text(((data.memTotal-data.memAvailable)/1024/1024).toFixed(0));
+				$('#memPie').text(data.memTotal-data.memAvailable+'/'+data.memTotal).change();
+
+				index = 1;
+				$.each(data.disk, function(key, val) {
+					$('#diskUsage'+index).text((val.used/val.total * 100).toPrecision(3));
+					$('#diskUsagePie'+index).text(val.used/1024/1024+'/'+val.total/1024/1024).change();
+				});
+			})
+		.complete(function() {
+			setTimeout(stats,5*1000);
+		})
+	}
 	$(function() {
 		$('#sony_source').click(function() { remote("IR/AV"); });
 		$('#sony_volup').click(function() { remote("IR/volup"); });
 		$('#sony_voldown').click(function() { remote("IR/voldown"); });
+
+
+		$.getJSON(server_addr+'system/', function(data) {
+			console.log(data)
+			$('#cpuUsageLine').peity("line");
+			$('#memPie').peity("pie");
+			index = 1;
+			$.each(data.disk, function(key, val) {
+				$('#diskUsage').append('<div class="half box"><div class="label">'+key+'</div><span id="diskUsage'+index+'"></span><div class="label">%</div></div><span class="pie" id="diskUsagePie'+index+'" data-colours=\'["f15a24", "#dddddd"]\' data-diameter="70">0/100</span>')
+				$('#diskUsagePie'+index).peity("pie");
+				index++;
+			});
+			stats();
+		});
 
 		$('select').each(function() {
 			$(this).change(function() {
@@ -62,19 +109,18 @@
 				remote(cmd);
 			});
 		});
-		worker();
+//		worker();
 	});
 
 
     </script>
 
 	<style>
-		.temperature {
+		.box {
 			-moz-border-radius: 15px;
 			border-radius: 15px;
 			background-color: #f15a24;
 			color: white;
-			width: 70px;
 			height: 50px;
 			padding: 8px 20px 8px 20px;
 			margin: 16px;
@@ -84,6 +130,16 @@
 			font-weight: bold;
 			float: left;
 			text-align: center;
+		}
+		.graph {
+			padding: 8px 20px 8px 20px;
+			margin: 16px;
+		}
+		.half {
+			width: 70px;
+		}
+		.full {
+			width: 210px;
 		}
 		.label {
 			font-size: 10px;
@@ -100,18 +156,19 @@
 <div data-role="page" id="page1">
     <div data-theme="a" data-role="header">
         <h3 id="title">
-            Home Automation
-        </h3>
+        	Weather Station
+		</h3>
+		<a href="#page2" data-icon="gear" class="ui-btn-right">Server</a>
     </div>
     <div data-role="content">
 		<h1> Temperature </h1>
-			<div class="temperature"><span id="outdoor_temp"></span>º<div class="label">outdoor</div></div>
-			<div class="temperature"><span id="indoor_temp"></span>º<div class="label">indoor</div></div>
+			<div class="half box"><span id="outdoor_temp"></span>º<div class="label">outdoor</div></div>
+			<div class="half box"><span id="indoor_temp"></span>º<div class="label">indoor</div></div>
 			<div style="width: 288px; height: 100px; position: relative; background-color: #fbfbfb; border: 1px solid #b8b8b8; clear:both; margin-top: 140px; ">
 	        	    <img src="http://codiqa.com/static/images/v2/image.png" alt="image" style="position: absolute; top: 50%; left: 50%; margin-left: -16px; margin-top: -18px" id="graph_outdoor">
 		        </div>
 		<h1 style="clear: both"> Humidity </h1>
-			<div class="temperature"><span id="humidity"></span><div class="label">%</div></div>
+			<div class="full box"><span id="humidity"></span><div class="label">%</div></div>
     </div>
 	<div data-rote="footer" data-position="fixed">
         <div id="Remote" data-role="navbar" data-iconpos="top">
@@ -121,6 +178,25 @@
             </ul>
         </div>
 	</div>
+</div>
+
+<!-- Server -->
+<div data-role="page" id="page2">
+    <div data-theme="a" data-role="header">
+		<a href="#" data-role="button" data-rel="back" data-icon="arrow-l">Back</a>
+        <h3 id="title">
+            Server Info
+        </h3>
+    </div>
+    <div data-role="content">
+		<h1> CPU Usage</h1>
+			<div class="half box"><span id="cpuUsage"></span><div class="label">%</div></div><span class="line graph" id="cpuUsageLine">0</span>
+		<h1 style="clear: both"> Memory Usage </h1>
+			<div class="half box"><span id="memUsed"></span><div class="label">MB</div></div><span class="pie" id="memPie" data-colours='["f15a24", "#dddddd"]' data-diameter="70">0/100</span>
+		<h1 style="clear: both"> Disk Usage </h1>
+			<span id="diskUsage">
+			</span>
+    </div>
 </div>
 
 
