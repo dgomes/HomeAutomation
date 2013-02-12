@@ -13,11 +13,11 @@ from twisted.web import server, static
 class NotifyResource(resource.Resource):
 	isLeaf = True
 	def __init__(self, conf):
-		self.conf = conf
-		self.api = twitter.Api(consumer_key=conf['consumer_key'],
-		                      consumer_secret=conf['consumer_secret'],
-							  access_token_key=conf['access_token_key'],
-							  access_token_secret=conf['access_token_secret'])
+		self.conf = conf['notify']
+		self.api = twitter.Api(consumer_key=conf['notify']['consumer_key'],
+		                      consumer_secret=conf['notify']['consumer_secret'],
+							  access_token_key=conf['notify']['access_token_key'],
+							  access_token_secret=conf['notify']['access_token_secret'])
 
 	def render_POST(self,request):
 		#pprint.pprint(request.__dict__)
