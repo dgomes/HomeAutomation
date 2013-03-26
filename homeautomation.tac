@@ -4,10 +4,12 @@ import yaml
 import sys
 from serial.serialutil import SerialException
 
-from twisted.internet import reactor
+from twisted.application import service, internet
 from twisted.internet.serialport import SerialPort
 from twisted.web import server, static
 from twisted.python import log
+from twisted.python.log import ILogObserver, FileLogObserver
+from twisted.python.logfile import DailyLogFile
 
 from system import *
 from airport import *
@@ -19,12 +21,9 @@ from chacon import *
 from arduino import *
 from cosm import *
 
-logging.basicConfig(format='%(asctime)-6s [%(name)s] %(message)s',level=logging.ERROR)
+conf = yaml.load(file('settings.yaml', 'r'))
 
-if __name__ == "__main__":
-	conf = yaml.load(file('settings.yaml', 'r'))
-	#log.startLogging(open(conf['logfile'], 'w'))
-	log.startLogging(sys.stdout)
+def getWebService():
 	root = static.File('.')
 
 	cosm = CosmInterface(conf)
@@ -47,8 +46,14 @@ if __name__ == "__main__":
 	root.putChild("airport", airport)
 	system = SystemResource()
 	root.putChild("system", system)
-    notify = NotifyResource(conf)
-	root.putChild("notify", notify)
+#	notify = NotifyResource(conf)
+#	root.putChild("notify", notify)
 
-	reactor.listenTCP(conf['port'], server.Site(root))
-	reactor.run()
+	return internet.TCPServer(conf['port'], server.Site(root))
+
+application = service.Application(conf['appname'])
+logfile = DailyLogFile(conf['appname']+".log", conf['logdir'])
+application.setComponent(ILogObserver, FileLogObserver(logfile).emit)
+
+service = getWebService()
+service.setServiceParent(application)
