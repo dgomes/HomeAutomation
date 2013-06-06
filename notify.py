@@ -24,7 +24,7 @@ class NotifyResource(resource.Resource):
 		if [tok for tok in request.postpath if tok in [ auth['token'] for auth in self.conf['auth']]]:
 			if 'cosm' in request.postpath:
 				data = json.loads(request.args['body'][0])
-				message = "COSM: '" + str(data['environment']['title']) + "' was triggered due to value " + str(data['triggering_datastream']['value']['value']) + str(data['triggering_datastream']['units']['symbol'])+" " + str(data['type']) + " " + str(data['threshold_value']) + str(data['triggering_datastream']['units']['symbol'])
+				message = "COSM: '" + unicode(data['environment']['title']) + "' was triggered due to value " + unicode(data['triggering_datastream']['value']['value']) + unicode(data['triggering_datastream']['units']['symbol'])+" " + unicode(data['type']) + " " + unicode(data['threshold_value']) + unicode(data['triggering_datastream']['units']['symbol'])
 			else:
 				message = cgi.escape(request.postpath[-1])
 			try:

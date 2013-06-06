@@ -21,6 +21,7 @@ from sony import *
 from chacon import *
 from arduino import *
 from cosm import *
+from greenhouse import *
 
 conf = yaml.load(file('settings.yaml', 'r'))
 
@@ -39,6 +40,8 @@ def getWebService():
 	except SerialException as e:
 		log.err()
 
+	greenhouse = GreenHouseResource(cosm, conf)
+	root.putChild("greenhouse", greenhouse)
 	imeter = IMeterResource(cosm, conf)
 	root.putChild("imeter", imeter)
 	igd = UPnPResource(cosm, conf)

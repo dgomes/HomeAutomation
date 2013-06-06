@@ -14,6 +14,7 @@ class WeatherResource(home.Resource):
 		home.Resource.__init__(self, sink)
 
 	def updateData(self, line):
+		#print line
 		try:
 			d = json.loads(line)
 			if d[u'code'] != 100:  #we only care for weather station reports (code 100)

@@ -16,12 +16,19 @@ class GreenHouseResource(home.Resource):
 		home.Resource.__init__(self, sink)
 
 	def cronJob(self):
-		response = urllib2.urlopen(self.conf['url'], timeout=5)
-		self.data = json.loads(response.read())
-		#getPage(self.conf['url']).addCallbacks(callback=self._cb_success, errback=self._cb_error)
-		del self.data['HumidityProbe']
-		print self.data
-		self.dataSink.updateCOSM(self.data, self.conf['feed_id'])
+		try:
+			response = urllib2.urlopen(self.conf['url'], timeout=5)
+			self.data = json.loads(response.read())
+			#getPage(self.conf['url']).addCallbacks(callback=self._cb_success, errback=self._cb_error)
+			for k,v in enumerate(self.data['HumidityProbe']):
+				self.data['HumidityProbe' + str(k)] = v
+			#self.data['Luminosity'] = self.data['Luminosity']*100/1023
+			del self.data['HumidityProbe']
+			del self.data['HumidityProbe3'] #temporarily off since sensor is loose
+			print self.data
+			self.dataSink.updateCOSM(self.data, self.conf['feed_id'])
+		except:
+			print "Error opening " + self.conf['url'] 
 
 	def _cb_error(self, msg):
 		print "Error getting page from imeter"
