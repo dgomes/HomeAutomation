@@ -37,7 +37,7 @@ class AirportResource(home.Resource):
 			self.data[self.mapping[res]] = results[res]
 		print "Airport:	", self.data
 		if self.timestamp != 0:	#discard first results
-			self.dataSink.updateCOSM(self.data, self.conf['feed_id'])
+			self.dataSink.update(self.data, self.conf['feed_id'])
 		self.timestamp = now
 
 	def _cbError(self, msg):

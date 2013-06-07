@@ -39,7 +39,7 @@ class UPnPResource(home.Resource):
 			self.data['outBytes'] = sent
 			print 'IGD:	', json.dumps(self.data)
 			if self.timestamp != 0:	#discard first results
-				self.dataSink.updateCOSM(self.data, self.conf['feed_id'])
+				self.dataSink.update(self.data, self.conf['feed_id'])
 			self.timestamp = now
 		except Exception, e:
 			print "Error getting IGD Stats: ", e

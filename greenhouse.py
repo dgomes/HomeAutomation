@@ -26,8 +26,9 @@ class GreenHouseResource(home.Resource):
 			del self.data['HumidityProbe']
 			del self.data['HumidityProbe3'] #temporarily off since sensor is loose
 			print self.data
-			self.dataSink.updateCOSM(self.data, self.conf['feed_id'])
-		except:
+			self.dataSink.update(self.data, self.conf['feed_id'])
+		except Exception as e:
+			log.err(e)
 			print "Error opening " + self.conf['url'] 
 
 	def _cb_error(self, msg):
@@ -37,7 +38,7 @@ class GreenHouseResource(home.Resource):
 		print html
 		try:
 			#TODO check if Last Recption changed ...
-			self.dataSink.updateCOSM(self.data, self.conf['feed_id'])
+			self.dataSink.update(self.data, self.conf['feed_id'])
 		except Exception as e:
 			log.err(e)
 

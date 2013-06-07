@@ -20,7 +20,7 @@ from imeter import *
 from sony import *
 from chacon import *
 from arduino import *
-from cosm import *
+from xivelyInterface import *
 from greenhouse import *
 
 conf = yaml.load(file('settings.yaml', 'r'))
@@ -28,8 +28,8 @@ conf = yaml.load(file('settings.yaml', 'r'))
 def getWebService():
 	root = static.File('.')
 
-	cosm = CosmInterface(conf)
-	weather = WeatherResource(cosm, conf)
+	xively = XivelyInterface(conf)
+	weather = WeatherResource(xively, conf)
 	try:
 		serial = SerialPort(USBClient(weather.updateData), conf['serial']['port'], reactor, baudrate=conf['serial']['baudrate'])
 		ir = IRCommandResource(serial)
@@ -40,13 +40,13 @@ def getWebService():
 	except SerialException as e:
 		log.err()
 
-	greenhouse = GreenHouseResource(cosm, conf)
+	greenhouse = GreenHouseResource(xively, conf)
 	root.putChild("greenhouse", greenhouse)
-	imeter = IMeterResource(cosm, conf)
+	imeter = IMeterResource(xively, conf)
 	root.putChild("imeter", imeter)
-	igd = UPnPResource(cosm, conf)
+	igd = UPnPResource(xively, conf)
 	root.putChild("igd", igd)
-	airport = AirportResource(cosm, conf)
+	airport = AirportResource(xively, conf)
 	root.putChild("airport", airport)
 	system = SystemResource()
 	root.putChild("system", system)

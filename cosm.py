@@ -11,7 +11,7 @@ class CosmInterface():
 	def errorlog(self, msg):
 		print "Error publishing: ", msg
 
-	def updateCOSM(self, data, feed):
+	def update(self, data, feed):
 		environment = txcosm.Environment(version="1.0.0")
 		for i in data.keys():
 			environment.setCurrentValue(i, data[i])

@@ -36,7 +36,7 @@ class IMeterResource(home.Resource):
 			print 'iMeter:	', self.data
 
 			#TODO check if Last Recption changed ...
-			self.dataSink.updateCOSM(self.data, self.conf['feed_id'])
+			self.dataSink.update(self.data, self.conf['feed_id'])
 		except Exception as e:
 			log.err(e)
 
