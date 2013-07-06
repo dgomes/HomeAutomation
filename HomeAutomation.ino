@@ -3,7 +3,7 @@
  * Diogo Gomes <diogogomes@gmail.com>
  * Copyright 2012
  */
-#define DEBUG
+//#define DEBUG
 
 #include <IRremote.h> //http://github.com/shirriff/Arduino-IRremot
 #include <RemoteTransmitter.h> //https://bitbucket.org/fuzzillogic/433mhzforarduino
