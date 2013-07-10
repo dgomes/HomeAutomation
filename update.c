@@ -1,6 +1,7 @@
 #include "update.h"
 
 int updateFeed(char *ApiKey, int feed_id, struct weatherData *data) {
+	if(data->code != 100) return -1;
 	// create the xi library context
 	xi_context_t* xi_context = xi_create_context( XI_HTTP, ApiKey , feed_id );
 
