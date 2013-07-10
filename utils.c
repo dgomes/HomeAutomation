@@ -25,6 +25,9 @@ int oldparseWeatherJSON(char *json, struct weatherData *data) {
 }
 
 int parseWeatherJSON(char *text, struct weatherData *data) {
+	if(!strlen(text)) return -1;
+	printf(">%s<\n", text);
+	
 	json_t *root;
 	json_error_t error;
 
