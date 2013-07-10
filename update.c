@@ -1,5 +1,5 @@
 #include "update.h"
-
+#undef XI_DEBUG_OUTPUT
 int updateFeed(char *ApiKey, int feed_id, struct weatherData *data) {
 	if(data->code != 100) return -1;
 	// create the xi library context
