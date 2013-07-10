@@ -34,42 +34,52 @@ void parseWeatherJSON(char *json, struct weatherData *data) {
 	}
 }
 
+int setupSerial(char *port, int baudrate) {
+	int fd = -1;
+
+	fd = serialport_init(port, baudrate);
+	if( fd==-1 ) {
+		fprintf(stderr,"couldn't open port %s @ %d bauds\n", port, baudrate);
+		return -1;
+	}
+	debug_print("opened port %s\n",serialport);
+
+	serialport_flush(fd);
+	return fd;
+};
+
+int readSerial(int fd, char *buf, int buf_max, int timeout) {
+	char eolchar = '\n';
+
+	memset(buf,0,buf_max);  //
+	int sr = serialport_read_until(fd, buf, eolchar, buf_max, timeout);
+	//	strcpy(buf,"{\"code\": 100, \"Humidity\": 47, \"OutdoorTemperature\": 28.40, \"IndoorTemperature\": 27.00}\n");
+	printf("DEBUG:\t%s", buf);
+
+	return sr;
+};
+
 int main( int argc, const char* argv[] ) {
+
+	int fd = setupSerial("/dev/ttyUSB0", 115200);
+
+	if(fd == -1)
+		exit(1);
+
 	const int buf_max = 256;
 	char buf[buf_max];
 
-	int fd = -1;
-	char serialport[buf_max];
-	int baudrate = 9600;  // default
-	char eolchar = '\n';
-	int timeout = 60000;
-
-
-	baudrate = strtol("B115200",NULL,10);
-
-	if( fd!=-1 ) {
-		serialport_close(fd);
-		debug_print("closed port %s\n",serialport);
-	}
-	strcpy(serialport,"/dev/ttyUSB0");
-	fd = serialport_init(serialport, baudrate);
-	if( fd==-1 ) error("couldn't open port");
-	debug_print("opened port %s\n",serialport);
-	serialport_flush(fd);
 
 	do {
-		memset(buf,0,buf_max);  // 
-		serialport_read_until(fd, buf, eolchar, buf_max, timeout);
-		//	strcpy(buf,"{\"code\": 100, \"Humidity\": 47, \"OutdoorTemperature\": 28.40, \"IndoorTemperature\": 27.00}\n");
-		printf("DEBUG:\t%s", buf);
+		while(!readSerial(fd, buf, buf_max, 5000)) {
+			struct weatherData data;
+			parseWeatherJSON(buf, &data);
 
-		struct weatherData data;
-		parseWeatherJSON(buf, &data);
+			printf("-\nHumidity: %d\nOutdoor: %f\nIndoor: %f\n", data.humidity, data.outdoor, data.indoor);
 
-		printf("-\nHumidity: %d\nOutdoor: %f\nIndoor: %f\n", data.humidity, data.outdoor, data.indoor);
-	
-		updateFeed("WmJNDWkbkxD29IMuxsq6rdItKrX4hflgtqR0H23QqwuxhBXG", 1435962501, &data);
+			updateFeed("WmJNDWkbkxD29IMuxsq6rdItKrX4hflgtqR0H23QqwuxhBXG", 1435962501, &data);
+		};
+		fprintf(stderr, "Could not read from serial\n");
 	} while(1);
-
 	return 0;
 }
