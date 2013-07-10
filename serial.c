@@ -14,7 +14,9 @@
 #include "update.h"
 #include "data.h"
 
-void parseWeatherJSON(char *json, struct weatherData *data) {
+int parseWeatherJSON(char *json, struct weatherData *data) {
+	if(!strlen(json)) return -1;
+	printf(">%s<\n", json);
 	char *code, *humidity, *outdoor, *indoor;
 	char *delim = ",";
 	code = strtok(json, delim);
@@ -31,7 +33,9 @@ void parseWeatherJSON(char *json, struct weatherData *data) {
 		data->humidity = strtol(humidity+13, NULL, 10);
 		data->outdoor = strtod(outdoor+23, NULL);
 		data->indoor = strtod(indoor+22, NULL);
+		return 0;
 	}
+	return 1;
 }
 
 int main( int argc, const char* argv[] ) {
@@ -64,11 +68,12 @@ int main( int argc, const char* argv[] ) {
 		printf("DEBUG:\t%s", buf);
 
 		struct weatherData data;
-		parseWeatherJSON(buf, &data);
-
-		printf("-\nHumidity: %d\nOutdoor: %f\nIndoor: %f\n", data.humidity, data.outdoor, data.indoor);
+		if(!parseWeatherJSON(buf, &data)) {
+		
+			printf("-\nHumidity: %d\nOutdoor: %f\nIndoor: %f\n", data.humidity, data.outdoor, data.indoor);
 	
-		updateFeed("WmJNDWkbkxD29IMuxsq6rdItKrX4hflgtqR0H23QqwuxhBXG", 1435962501, &data);
+			updateFeed("WmJNDWkbkxD29IMuxsq6rdItKrX4hflgtqR0H23QqwuxhBXG", 1435962501, &data);
+		}
 	} while(1);
 
 	return 0;
