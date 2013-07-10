@@ -57,8 +57,6 @@ int main( int argc, const char* argv[] ) {
 			parseWeatherJSON(buf, &data);
 
 			if(!parseWeatherJSON(buf, &data)) {
-				printf("-\nHumidity: %d\nOutdoor: %f\nIndoor: %f\n", data.humidity, data.outdoor, data.indoor);
-
 				updateFeed("WmJNDWkbkxD29IMuxsq6rdItKrX4hflgtqR0H23QqwuxhBXG", 1435962501, &data);
 			}
 		};

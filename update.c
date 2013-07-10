@@ -1,5 +1,5 @@
 #include "update.h"
-
+#undef XI_DEBUG_OUTPUT
 int updateFeed(char *ApiKey, int feed_id, struct weatherData *data) {
 	// create the xi library context
 	xi_context_t* xi_context = xi_create_context( XI_HTTP, ApiKey , feed_id );
