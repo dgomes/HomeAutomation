@@ -54,7 +54,6 @@ int main( int argc, const char* argv[] ) {
 	do {
 		while(!readSerial(fd, buf, buf_max, 5000)) {
 			struct weatherData data;
-			parseWeatherJSON(buf, &data);
 
 			if(!parseWeatherJSON(buf, &data)) {
 				updateFeed("WmJNDWkbkxD29IMuxsq6rdItKrX4hflgtqR0H23QqwuxhBXG", 1435962501, &data);
