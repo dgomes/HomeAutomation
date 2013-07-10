@@ -43,7 +43,24 @@ int parseWeatherJSON(char *text, struct weatherData *data) {
         return 1;
     }
 
-	printf("CODE: %d\n", (int) json_integer_value(code));
+	if(json_integer_value(code) != 100)
+		return 2;
+	else
+		data->code = 100;
+
+
+	json_t *humidity = json_object_get(root, "humidity");
+	if(json_is_integer(humidity))
+		data->humidity = json_integer_value(humidity);
+
+	json_t *indoor = json_object_get(root, "IndoorTemperature");
+	if(json_is_real(indoor))
+		data->indoor = json_real_value(indoor);
+
+	json_t *outdoor = json_object_get(root, "OutdoorTemperature");
+	if(json_is_real(outdoor))
+		data->outdoor = json_real_value(outdoor);
+
 
 	return 0;
 }
