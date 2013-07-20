@@ -28,7 +28,7 @@ void setup()
   digitalWrite(RF_RECEIVER_PIN, HIGH); //pull up
   
   Serial.begin(115200);
-  Serial.println("Home Automation v0");
+  Serial.println("Home Automation v1");
 }
 
 float lm35temperature() {
@@ -40,23 +40,17 @@ float lm35temperature() {
 }
 
 void handlePacket(unsigned long packet) {
-  byte humidity;
-  humidity = packet & 0xFF;
+  //Check sanity of header, should be 0xA8
+  if(((packet >> 24) & 0xFF) != 0xA8)
+    return;
   
-  word temp;
-  float temperature = 0;
-  temp = (packet >> 8) & 0x7FFF;
-  if( (packet >> 8) & 0x8000)
-    temperature = float(temp)/10;
-  else
-    temperature = -1.0 * float(temp)/10;
-
+  byte humidity = packet & 0xFF;
+  float temperature = float((packet >> 8) & 0xFFF)/10;
+  
   #ifdef DEBUG
   Serial.print(String("{\"code\": 101, \"Humidity\": ")+humidity); 
-  Serial.print(String(", \"OutdoorTemperature\": ")); 
-  Serial.print(float(temperature));
-  Serial.print(String(", \"IndoorTemperature\": "));
-  Serial.print(lm35temperature());
+  Serial.print(String(", \"OutdoorTemperature\": ")+float(temperature)); 
+  Serial.print(String(", \"IndoorTemperature\": ")+lm35temperature());
   Serial.println(String("}"));
   #endif
 
@@ -75,9 +69,13 @@ void handlePacket(unsigned long packet) {
     #endif
     return;
   }
+  
+  
   Serial.print(String("{\"code\": 100, \"Humidity\": ")+humidity); 
+  Serial.print(String(", \"Packet\": \"0x")+String(packet,HEX)+"\""); 
+  Serial.print(String(", \"Channel\": ")+String((packet>>20) && 0xF)); 
   Serial.print(String(", \"OutdoorTemperature\": "));
-  Serial.print(temperature);
+  Serial.print(temperature); 
   Serial.print(String(", \"IndoorTemperature\": "));
   Serial.print(lm35temperature());
   Serial.println(String("}"));
