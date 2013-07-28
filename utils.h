@@ -11,10 +11,5 @@
 #define debug_print(fmt, ...) do {} while (0)
 #endif
 
-#include <jansson.h>
-
-#include "data.h"
-
-int parseWeatherJSON(char *json, struct weatherData *data);
 
 #endif
