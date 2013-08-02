@@ -1,0 +1,11 @@
+{
+"port": {
+	"name": "/dev/ttyUSB0",
+	"speed": 115200,
+	"timeout": 50000
+	},
+"xively": {
+	"key": "HQHeHauTb9jvkpLcepV2Sg5G9SlQkxKOzg8akO9X6r5bC7mW",
+	"feedid": 1435962501 
+	}
+}

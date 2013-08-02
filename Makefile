@@ -10,16 +10,16 @@ INCLUDE_DIRS=$(XIVELY_INCLUDE_DIR) $(ARDUINO_SERIAL_INCLUDE_DIR) `pkg-config --c
 
 CFLAGS=-O2
 
-SOURCES	:= $(wildcard *.c)
-OBJS	:= $(SOURCES:.c=.o)
+SOURCES	:= $(wildcard *.c) 
+OBJS	:= $(SOURCES:.c=.o) 
 
 %.o : %.c
 	$(CC) $(INCLUDE_DIRS) -c $(CFLAGS) $< -o $@
 
-serial: $(OBJS)
+homeautomation: $(OBJS)
 	$(CC) $(LIBRARY_DIRS) -o $@ $(LDFLAGS) $^ $(LIBRARIES)
 
 clean:
-	rm $(OBJS) serial
+	rm $(OBJS) homeautomation 
 
-all: serial
+all: homeautomation 
