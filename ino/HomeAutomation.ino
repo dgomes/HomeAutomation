@@ -47,13 +47,6 @@ void handlePacket(unsigned long packet) {
   byte humidity = packet & 0xFF;
   float temperature = float((packet >> 8) & 0xFFF)/10;
   
-  #ifdef DEBUG
-  Serial.print(String("{\"code\": 101, \"Humidity\": ")+humidity); 
-  Serial.print(String(", \"OutdoorTemperature\": ")+float(temperature)); 
-  Serial.print(String(", \"IndoorTemperature\": ")+lm35temperature());
-  Serial.println(String("}"));
-  #endif
-
   //Specs http://www.amazon.co.uk/gp/product/B00327G0MA/ref=oh_details_o00_s00_i00
   if(humidity < 0 || humidity > 100) {//sanity check according to specs
     #ifdef DEBUG
@@ -70,13 +63,14 @@ void handlePacket(unsigned long packet) {
     return;
   }
   
-  
-  Serial.print(String("{\"code\": 100, \"Humidity\": ")+humidity); 
+  Serial.print(String("{\"code\": 100, \"humidity\": ")+humidity); 
+  #ifdef DEBUG
   Serial.print(String(", \"Packet\": \"0x")+String(packet,HEX)+"\""); 
   Serial.print(String(", \"Channel\": ")+String((packet>>20) && 0xF)); 
-  Serial.print(String(", \"OutdoorTemperature\": "));
+  #endif
+  Serial.print(String(", \"outdoor_temp\": "));
   Serial.print(temperature); 
-  Serial.print(String(", \"IndoorTemperature\": "));
+  Serial.print(String(", \"indoor_temp\": "));
   Serial.print(lm35temperature());
   Serial.println(String("}"));
 }

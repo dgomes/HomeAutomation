@@ -2,7 +2,7 @@
 #include "json.h"
 #undef XI_DEBUG_OUTPUT
 int updateFeed(char *ApiKey, int feed_id, const char* text) {
-	if(checkJSON_integer(text, "code", 100))
+	if(checkJSON_integer(text, "code", 200))
 		return 1;
 
 	json_error_t error;

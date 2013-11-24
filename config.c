@@ -57,6 +57,12 @@ int readConfig(const char *filename, struct config *c) {
                 return 1;
         }
         c->xively.feedid = json_integer_value(feed);
+        json_t *update = json_object_get(xively, "updaterate");
+        if(!json_is_integer(update)) {
+                fprintf(stderr, "error: xively updaterate missing\n");
+                return 1;
+        }
+        c->xively.updaterate = json_integer_value(update);
 
         return 0;
 }

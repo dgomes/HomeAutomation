@@ -40,9 +40,11 @@ int main( int argc, const char* argv[] ) {
 	char conf[strlen(argv[0] + 10)];
 	strcat(strcpy(conf,argv[0]), ".json");
 	if(readConfig(conf, &cfg)) {
+		//can't find configuration file in current dir, lookup in /etc/
 		strcat(strcat(strcpy(conf, "/etc/"), argv[0]), ".json");
-		fprintf("Reading configuration from %s\n", conf);:w
+		fprintf(stderr,"Reading configuration from %s\n", conf);
 		if(readConfig(conf,&cfg)) 
+			// no configuration file supplied
 			exit(1);	
 	}
 
@@ -53,14 +55,24 @@ int main( int argc, const char* argv[] ) {
 
 	const int buf_max = 512;
 	char buf[buf_max];
-	char prev[buf_max];
+	char last[buf_max];
+	time_t lasttime = time(NULL);
+	time_t updatetime = 0;
 
 	while(!readSerial(fd, buf, buf_max, cfg.port.timeout)) {
-		if(checkJSON_integer(buf,"code", 100)==0) {
-			if(strcmp(buf, prev) == 0) {
-				printf("%s\n",	updateFeed(cfg.xively.key, cfg.xively.feedid, buf)? "Error updating feed" : "update successfull");
-			}
-			strcpy(prev, buf);
+		fprintf(stderr, "%s\n", buf);
+		if(checkJSON_integer(buf,"code", 200)==0) {
+			lasttime = time(NULL);
+			strcpy(last, buf);
+		}
+		if((lasttime - updatetime > cfg.xively.updaterate) && strlen(last)>0) {
+			if(updateFeed(cfg.xively.key, cfg.xively.feedid, last)) {
+				printf("FAILED updated\n");
+			} else {
+				printf("updated\n");
+				updatetime = time(NULL);
+				strcpy(last,"");
+			};
 		}
 		serialport_flush(fd);
 	};

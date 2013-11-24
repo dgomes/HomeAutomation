@@ -8,11 +8,12 @@ struct config {
 	struct _port {
 		char *name;
 		int speed;
-		int timeout;
+		int timeout; // mili seconds
 	} port;
 	struct _xively {
 		char *key;
 		long feedid;	
+		int updaterate; //seconds	
 	} xively;
 	int interval;
 };
