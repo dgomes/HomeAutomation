@@ -1,3 +1,7 @@
+WARNING
+=======
+This version consumes too much memory when compared to the new version. Nonetheless it is way easier to implement some of the plugins in python :)
+
 Dependencies
 ============
 
