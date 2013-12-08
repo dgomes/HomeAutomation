@@ -3,10 +3,12 @@
 int checkJSON_integer(const char *data, const char *name, int value)  {
 	if(!strlen(data)) return -1;
 
+//	fprintf(stderr, "checkJSON_integer: %s\n", data);
 	json_error_t error;
 	json_t *root = json_loads(data, 0, &error);
 
 	if(!root) {
+		fprintf(stderr, "<%s>\n", data);
 		fprintf(stderr, "error: on line %d: %s\n", error.line, error.text);
 		return 1;
 	}

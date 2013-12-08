@@ -15,6 +15,9 @@ struct config {
 		long feedid;	
 		int updaterate; //seconds	
 	} xively;
+	struct _remote {
+		int port; 
+	} remote;
 	int interval;
 };
 

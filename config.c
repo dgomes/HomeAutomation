@@ -38,6 +38,19 @@ int readConfig(const char *filename, struct config *c) {
 	}
 	c->port.timeout = json_integer_value(timeout);	
 
+	/* Remote Configuration */
+	json_t *remote = json_object_get(root, "remote");
+        if(!json_is_object(remote)) {
+                fprintf(stderr, "error: remote is not an object\n");
+                return 1;
+        }
+	json_t *remote_port = json_object_get(remote, "port");
+        if(!json_is_integer(remote_port)) {
+                fprintf(stderr, "error: remote port missing\n");
+                return 1;
+        }
+        c->remote.port = json_integer_value(remote_port);
+
 	/* Xively Configuration */
 	json_t *xively = json_object_get(root, "xively");
         if(!json_is_object(xively)) {

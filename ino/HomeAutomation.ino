@@ -4,6 +4,7 @@
  * Copyright 2012
  */
 //#define DEBUG
+//#define DEBUG_HIGH
 
 #include <IRremote.h> //http://github.com/shirriff/Arduino-IRremot
 #include <RemoteTransmitter.h> //https://bitbucket.org/fuzzillogic/433mhzforarduino
@@ -40,9 +41,15 @@ float lm35temperature() {
 }
 
 void handlePacket(unsigned long packet) {
-  //Check sanity of header, should be 0xA8
-  if(((packet >> 24) & 0xFF) != 0xA8)
+  //Check sanity of header, should be 0xF8
+  if(((packet >> 24) & 0xFF) != 0xF8) {
+    #ifdef DEBUG
+    Serial.print("{\"code\": 309, \"error\": \"Invalid checksum ");
+    Serial.print(((packet >> 24) & 0xFF));
+    Serial.println("\"}");
+    #endif
     return;
+  }
   
   byte humidity = packet & 0xFF;
   float temperature = float((packet >> 8) & 0xFFF)/10;
@@ -63,7 +70,7 @@ void handlePacket(unsigned long packet) {
     return;
   }
   
-  Serial.print(String("{\"code\": 100, \"humidity\": ")+humidity); 
+  Serial.print(String("{\"code\": 200, \"humidity\": ")+humidity); 
   #ifdef DEBUG
   Serial.print(String(", \"Packet\": \"0x")+String(packet,HEX)+"\""); 
   Serial.print(String(", \"Channel\": ")+String((packet>>20) && 0xF)); 
@@ -95,7 +102,7 @@ int rfdecode()
     return 0;
   }
   if(time > 6000) {
-    #ifdef DEBUG
+    #ifdef DEBUG_HIGH
     if(bitsread)
 	Serial.println(String("{\"code\": 305, \"error\": \"bitsread " + String(bitsread) + "\"}"));
     #endif
@@ -180,14 +187,19 @@ void loop() {
       break;
     case RF:
       // Retransmit the signal 8 times ( == 2^3) on pin RF_TRANSMITTER. Note: no object was created!
-      RemoteTransmitter::sendCode(RF_TRANSMITTER_PIN, code, RF_PERIOD, 3);
+      for(int i=0; i<3; i++) {
+        RemoteTransmitter::sendCode(RF_TRANSMITTER_PIN, code, RF_PERIOD, 3);
+	delay(100);
+      }
+      Serial.print("{\"code\": 200, \"rf\": \"0x");
+      Serial.print(code,HEX);
+      Serial.println("\"}");
       break;
     default:
       Serial.print("{\"code\": 302, \"error\": \"Unexpected type ");
       Serial.print(type);
       Serial.print("\"}");
     }
-  Serial.println("{\"code\": 200}");
   Serial.flush();
 }
 

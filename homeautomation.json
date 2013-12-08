@@ -4,6 +4,9 @@
 	"speed": 115200,
 	"timeout": 20000
 	},
+"remote": {
+	"port": 8001
+	},
 "xively": {
 	"key": "HQHeHauTb9jvkpLcepV2Sg5G9SlQkxKOzg8akO9X6r5bC7mW",
 	"feedid": 1435962501,
