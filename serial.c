@@ -42,8 +42,9 @@ int arduinoEvent(char *buf, struct last_update *last, struct config *cfg) {
 		now = time(NULL);
 	};
 	if((now - last->time > cfg->xively.updaterate) && strlen(buf)>0) {
-		if(updateFeed(cfg->xively.key, cfg->xively.feedid, buf)) {
-			printf("FAILED updated\n");
+		int r;
+		if(r = updateFeed(cfg->xively.key, cfg->xively.feedid, buf)) {
+			printf("FAILED updated: %d\n", r);
 		} else {
 			printf("updated\n");
 			strcpy(last->buf, buf);

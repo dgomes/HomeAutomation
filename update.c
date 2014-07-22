@@ -48,8 +48,8 @@ int updateFeed(char *ApiKey, int feed_id, const char* text) {
 			xi_set_value_i32( p, json_integer_value(value));
 		else if(json_is_real(value))
 			xi_set_value_f32( p, json_real_value(value));
-		else
-			return 2;	
+/*		else
+			return 2;	*/
 
 		iter = json_object_iter_next(root, iter);
 	}

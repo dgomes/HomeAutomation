@@ -3,7 +3,7 @@
  * Diogo Gomes <diogogomes@gmail.com>
  * Copyright 2012
  */
-//#define DEBUG
+#define DEBUG
 //#define DEBUG_HIGH
 
 #include <IRremote.h> //http://github.com/shirriff/Arduino-IRremot
@@ -41,8 +41,8 @@ float lm35temperature() {
 }
 
 void handlePacket(unsigned long packet) {
-  //Check sanity of header, should be 0xF8
-  if(((packet >> 24) & 0xFF) != 0xF8) {
+  //Check sanity of header, should be 0x3F
+  if(((packet >> 24) & 0xFF) != 0x3F) {
     #ifdef DEBUG
     Serial.print("{\"code\": 309, \"error\": \"Invalid checksum ");
     Serial.print(((packet >> 24) & 0xFF));
