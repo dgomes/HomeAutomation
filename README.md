@@ -1,6 +1,8 @@
 HomeAutomation
 ==============
 
+THIS PROJECT IS DEPRECATED BY http://github.com/dgomes/MELGA
+
 As the name implies this is a personal Home Automation Project, currently living out of a IR+RF Remote Controler and a Weather Station.
 
 Configuration
